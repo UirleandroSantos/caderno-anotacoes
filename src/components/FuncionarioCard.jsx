@@ -151,7 +151,7 @@ export default function FuncionarioCard({ funcionario }) {
     <div className="min-w-full h-full bg-gray-900 text-white flex flex-col p-4">
       
       <div className="mb-3">
-        <h2 className="text-xl font-bold">{funcionario.nome}</h2>
+        <h2 className="text-[30px] font-bold">{funcionario.nome}</h2>
         <p className="text-gray-400 text-sm">Folha de controle</p>
       </div>
 

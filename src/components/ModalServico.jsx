@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function ModalServico({ onClose, onSave }) {
-  const hoje = new Date().toISOString().split("T")[0];
+  const hoje = new Date().toLocaleDateString("sv-SE");
 
   const [cliente, setCliente] = useState("");
   const [tipo, setTipo] = useState("");
@@ -16,7 +16,7 @@ export default function ModalServico({ onClose, onSave }) {
       cliente,
       tipo,
       valor,
-      data,
+      data, // 👈 salva exatamente a data escolhida
       observacoes: obs,
     });
   }

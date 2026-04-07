@@ -8,10 +8,9 @@ import ModalCredito from "./ModalCredito";
 export default function FuncionarioCard({ funcionario }) {
   const hoje = new Date();
   const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1)
-    .toISOString()
-    .split("T")[0];
+  .toLocaleDateString("sv-SE");
 
-  const hojeFormatado = hoje.toISOString().split("T")[0];
+  const hojeFormatado = hoje.toLocaleDateString("sv-SE");
 
   const [dataInicio, setDataInicio] = useState(primeiroDia);
   const [dataFim, setDataFim] = useState(hojeFormatado);
@@ -250,7 +249,7 @@ export default function FuncionarioCard({ funcionario }) {
               R$ {s.valor.toFixed(2).replace(".", ",")}
             </div>
             <div className="text-xs text-gray-500">
-              {new Date(s.data).toLocaleDateString()}
+              {new Date(s.data + "T00:00:00").toLocaleDateString()}
             </div>
 
             <div className="flex gap-2 mt-2">

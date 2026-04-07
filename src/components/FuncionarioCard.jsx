@@ -289,7 +289,7 @@ export default function FuncionarioCard({ funcionario }) {
               className="text-sm border-b border-gray-700 py-1 text-gray-300 flex justify-between items-center"
             >
               <span>
-                {d.tipo} - R$ {d.valor}
+                {new Date(d.data + "T00:00:00")}
               </span>
 
               <div className="flex gap-2">

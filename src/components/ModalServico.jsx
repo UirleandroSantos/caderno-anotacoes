@@ -39,7 +39,9 @@ export default function ModalServico({ onClose, onSave }) {
         >
           <option value="">Tipo</option>
           <option>Banho</option>
+          <option>Banho + Tosa Completa</option>
           <option>Banho + Tosa Higiênica</option>
+          <option>Outro</option>
         </select>
 
         <input

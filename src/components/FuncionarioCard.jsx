@@ -3,6 +3,7 @@ import { supabase } from "../services/supabase";
 
 import ModalServico from "./ModalServico";
 import ModalDespesa from "./ModalDespesa";
+import ModalCredito from "./ModalCredito";
 
 export default function FuncionarioCard({ funcionario }) {
   const hoje = new Date();
@@ -20,14 +21,12 @@ export default function FuncionarioCard({ funcionario }) {
 
   const [modalServico, setModalServico] = useState(false);
   const [modalDespesa, setModalDespesa] = useState(false);
+  const [modalCredito, setModalCredito] = useState(false);
 
   const [editarServico, setEditarServico] = useState(null);
   const [editarDespesa, setEditarDespesa] = useState(null);
 
   const [mostrarDespesas, setMostrarDespesas] = useState(false);
-
-  // 🔥 NOVO ESTADO DO MENU DE CRÉDITO
-  const [abrirCredito, setAbrirCredito] = useState(false);
 
   useEffect(() => {
     carregarDados();
@@ -59,10 +58,13 @@ export default function FuncionarioCard({ funcionario }) {
     0
   );
 
-  const totalDespesas = despesas.reduce(
-    (a, b) => a + Number(b.valor || 0),
-    0
-  );
+  const totalDespesas = despesas
+  .filter((d) => d.tipo !== "Crédito")
+  .reduce((a, b) => a + Number(b.valor || 0), 0);
+
+  const totalCreditos = despesas
+  .filter((d) => d.tipo === "Crédito")
+  .reduce((a, b) => a + Number(b.valor || 0), 0);
 
   const quantidadeServicos = servicos.length;
 
@@ -103,6 +105,18 @@ export default function FuncionarioCard({ funcionario }) {
     }
 
     setModalDespesa(false);
+    carregarDados();
+  }
+
+  async function salvarCredito(dados) {
+    await supabase.from("despesas_funcionario").insert([
+      {
+        funcionario_id: funcionario.id,
+        ...dados,
+      },
+    ]);
+
+    setModalCredito(false);
     carregarDados();
   }
 
@@ -170,7 +184,7 @@ export default function FuncionarioCard({ funcionario }) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mb-3">
+      <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="bg-gray-800 p-3 rounded">
           <p className="text-gray-400 text-sm">Serviços</p>
           <p className="text-green-400 font-bold">
@@ -184,9 +198,15 @@ export default function FuncionarioCard({ funcionario }) {
             R$ {totalDespesas.toFixed(2).replace(".", ",")}
           </p>
         </div>
+
+        <div className="bg-gray-800 p-3 rounded">
+          <p className="text-gray-400 text-sm">Créditos</p>
+          <p className="text-blue-400 font-bold">
+            R$ {totalCreditos.toFixed(2).replace(".", ",")}
+        </p>
+</div>
       </div>
 
-      {/* BOTÕES */}
       <div className="flex gap-2 mb-3">
         <button
           onClick={() => {
@@ -198,45 +218,26 @@ export default function FuncionarioCard({ funcionario }) {
           + Serviço
         </button>
 
-        {/* 🔥 BOTÃO ALTERADO */}
-        <div className="relative flex-1">
-          <button
-            onClick={() => setAbrirCredito(!abrirCredito)}
-            className="bg-red-600 hover:bg-red-700 w-full h-full p-2 rounded flex flex-col items-center justify-center text-xs"
-          >
-            <span className="text-[15px] opacity-80">+ Despesa / Crédito</span>
-          </button>
+        <button
+          onClick={() => {
+            setEditarDespesa(null);
+            setModalDespesa(true);
+          }}
+          className="bg-red-600 hover:bg-red-700 flex-1 p-2 rounded"
+        >
+          + Despesa
+        </button>
 
-          {abrirCredito && (
-            <div className="absolute top-full mt-1 w-full bg-gray-800 border border-gray-700 rounded shadow">
-              <button
-                onClick={() => {
-                  setEditarDespesa(null);
-                  setModalDespesa(true);
-                  setAbrirCredito(false);
-                }}
-                className="w-full text-left px-3 py-2 hover:bg-gray-700 text-sm"
-              >
-                Despesa
-              </button>
-
-              <button
-                onClick={() => {
-                  setEditarDespesa(null);
-                  setModalDespesa(true);
-                  setAbrirCredito(false);
-                }}
-                className="w-full text-left px-3 py-2 hover:bg-gray-700 text-sm"
-              >
-                Crédito
-              </button>
-            </div>
-          )}
-        </div>
+        <button
+          onClick={() => setModalCredito(true)}
+          className="bg-blue-600 hover:bg-blue-700 flex-1 p-2 rounded"
+        >
+          + Crédito
+        </button>
       </div>
-        <p>Total de serviços  {quantidadeServicos}</p>
 
-      {/* SERVIÇOS */}
+      <p>Total de serviços  {quantidadeServicos}</p>
+
       <div className="flex-1 overflow-y-auto pr-1">
         {servicos.map((s) => (
           <div
@@ -274,7 +275,6 @@ export default function FuncionarioCard({ funcionario }) {
         ))}
       </div>
 
-      {/* DESPESAS */}
       <button
         onClick={() => setMostrarDespesas(!mostrarDespesas)}
         className="text-xs text-gray-400 mt-2"
@@ -316,15 +316,6 @@ export default function FuncionarioCard({ funcionario }) {
         </div>
       )}
 
-      {/* <div className="mt-auto pt-3">
-        <button
-          onClick={arquivar}
-          className="bg-gray-700 hover:bg-gray-600 w-full p-2 rounded"
-        >
-          📦 Arquivar período
-        </button>
-      </div> */}
-
       {modalServico && (
         <ModalServico
           onClose={() => setModalServico(false)}
@@ -338,6 +329,13 @@ export default function FuncionarioCard({ funcionario }) {
           onClose={() => setModalDespesa(false)}
           onSave={salvarDespesa}
           dados={editarDespesa}
+        />
+      )}
+
+      {modalCredito && (
+        <ModalCredito
+          onClose={() => setModalCredito(false)}
+          onSave={salvarCredito}
         />
       )}
     </div>

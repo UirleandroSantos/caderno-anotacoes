@@ -17,6 +17,7 @@ export default function Dashboard({ user }) {
 
   const [totalServicos, setTotalServicos] = useState(0);
   const [totalDespesas, setTotalDespesas] = useState(0);
+  const [totalCreditos, setTotalCreditos] = useState(0);
 
   const [funcionarios, setFuncionarios] = useState([]);
   const [nome, setNome] = useState("");
@@ -42,15 +43,25 @@ export default function Dashboard({ user }) {
   }
 
   async function carregarTotais() {
+
+    const { data: funcs } = await supabase
+      .from("funcionarios")
+      .select("id")
+      .eq("user_id", user.id);
+
+    const idsFuncionarios = (funcs || []).map((f) => f.id);
+
     const { data: servicos } = await supabase
       .from("servicos")
       .select("valor")
+      .in("funcionario_id", idsFuncionarios)
       .gte("data", dataInicio)
       .lte("data", dataFim);
 
     const { data: despesas } = await supabase
       .from("despesas_funcionario")
-      .select("valor")
+      .select("valor, tipo")
+      .in("funcionario_id", idsFuncionarios)
       .gte("data", dataInicio)
       .lte("data", dataFim);
 
@@ -58,9 +69,21 @@ export default function Dashboard({ user }) {
       (servicos || []).reduce((a, b) => a + Number(b.valor || 0), 0)
     );
 
-    setTotalDespesas(
-      (despesas || []).reduce((a, b) => a + Number(b.valor || 0), 0)
-    );
+    const despesasFiltradas = (despesas || []).filter(
+        (d) => d.tipo !== "Crédito"
+      );
+
+      const creditosFiltrados = (despesas || []).filter(
+        (d) => d.tipo === "Crédito"
+      );
+
+      setTotalDespesas(
+        despesasFiltradas.reduce((a, b) => a + Number(b.valor || 0), 0)
+      );
+
+      setTotalCreditos(
+        creditosFiltrados.reduce((a, b) => a + Number(b.valor || 0), 0)
+      );
   }
 
   async function criarFuncionario() {
@@ -92,7 +115,7 @@ export default function Dashboard({ user }) {
     };
   }, []);
 
-  const lucro = totalServicos - totalDespesas;
+  const lucro = totalServicos - (totalDespesas * 0.5);
 
   return (
     <div
@@ -207,11 +230,20 @@ export default function Dashboard({ user }) {
               </p>
             </div>
 
-            <div className="bg-gray-800 p-4 rounded">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-gray-800 p-4 rounded">
               <p className="text-gray-400 text-sm">Despesas</p>
               <p className="text-red-400 text-xl font-bold">
                 R$ {totalDespesas.toFixed(2).replace(".",",")}
               </p>
+            </div>
+
+            <div className="bg-gray-800 p-4 rounded">
+              <p className="text-gray-400 text-sm">Créditos</p>
+              <p className="text-blue-400 text-xl font-bold">
+                R$ {totalCreditos.toFixed(2).replace(".",",")}
+              </p>
+            </div>
             </div>
 
             <div className="bg-gray-800 p-4 rounded">

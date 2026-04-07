@@ -92,6 +92,8 @@ export default function Dashboard({ user }) {
     };
   }, []);
 
+  const lucro = totalServicos - totalDespesas;
+
   return (
     <div
       ref={containerRef}
@@ -201,21 +203,21 @@ export default function Dashboard({ user }) {
             <div className="bg-gray-800 p-4 rounded">
               <p className="text-gray-400 text-sm">Serviços</p>
               <p className="text-green-400 text-xl font-bold">
-                R$ {totalServicos}
+                R$ {totalServicos.toFixed(2).replace(".",",")}
               </p>
             </div>
 
             <div className="bg-gray-800 p-4 rounded">
               <p className="text-gray-400 text-sm">Despesas</p>
               <p className="text-red-400 text-xl font-bold">
-                R$ {totalDespesas}
+                R$ {totalDespesas.toFixed(2).replace(".",",")}
               </p>
             </div>
 
             <div className="bg-gray-800 p-4 rounded">
               <p className="text-gray-400 text-sm">Lucro</p>
               <p className="text-blue-400 text-xl font-bold">
-                R$ {totalServicos - totalDespesas}
+                R$ {lucro.toFixed(2).replace(".",",")}
               </p>
             </div>
           </div>

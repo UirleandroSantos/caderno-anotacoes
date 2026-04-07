@@ -21,10 +21,10 @@ export default function ModalDespesa({ onClose, onSave }) {
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="bg-gray-900 text-white p-5 rounded-2xl w-[340px] shadow-xl border border-gray-800">
 
-        <h2 className="text-lg font-bold mb-3">Nova Despesa</h2>
+        <h2 className="text-lg font-bold mb-3">Nova Despesa  / Crédito</h2>
 
         <input
-          placeholder="Nome da despesa"
+          placeholder="Descrição"
           className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded outline-none focus:border-blue-500"
           onChange={(e) => setNome(e.target.value)}
         />

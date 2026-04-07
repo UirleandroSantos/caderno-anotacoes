@@ -152,7 +152,7 @@ export default function FuncionarioCard({ funcionario }) {
       
       <div className="mb-3">
         <h2 className="text-xl font-bold">{funcionario.nome}</h2>
-        <p className="text-gray-400 text-sm">Controle financeiro</p>
+        <p className="text-gray-400 text-sm">Folha de controle</p>
       </div>
 
       <div className="flex gap-2 mb-3">

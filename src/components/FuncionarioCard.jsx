@@ -8,7 +8,7 @@ import ModalCredito from "./ModalCredito";
 export default function FuncionarioCard({ funcionario }) {
   const hoje = new Date();
   const primeiroDia = new Date(hoje.getFullYear(), hoje.getMonth(), 1)
-  .toLocaleDateString("sv-SE");
+    .toLocaleDateString("sv-SE");
 
   const hojeFormatado = hoje.toLocaleDateString("sv-SE");
 
@@ -26,6 +26,9 @@ export default function FuncionarioCard({ funcionario }) {
   const [editarDespesa, setEditarDespesa] = useState(null);
 
   const [mostrarDespesas, setMostrarDespesas] = useState(false);
+
+  // ✅ NOVO: filtro
+  const [filtroTipo, setFiltroTipo] = useState("");
 
   useEffect(() => {
     carregarDados();
@@ -52,20 +55,25 @@ export default function FuncionarioCard({ funcionario }) {
     setDespesas(d || []);
   }
 
-  const totalServicos = servicos.reduce(
+  // ✅ aplicar filtro
+  const servicosFiltrados = filtroTipo
+    ? servicos.filter((s) => s.tipo === filtroTipo)
+    : servicos;
+
+  const totalServicos = servicosFiltrados.reduce(
     (a, b) => a + Number(b.valor || 0),
     0
   );
 
   const totalDespesas = despesas
-  .filter((d) => d.tipo !== "Crédito")
-  .reduce((a, b) => a + Number(b.valor || 0), 0);
+    .filter((d) => d.tipo !== "Crédito")
+    .reduce((a, b) => a + Number(b.valor || 0), 0);
 
   const totalCreditos = despesas
-  .filter((d) => d.tipo === "Crédito")
-  .reduce((a, b) => a + Number(b.valor || 0), 0);
+    .filter((d) => d.tipo === "Crédito")
+    .reduce((a, b) => a + Number(b.valor || 0), 0);
 
-  const quantidadeServicos = servicos.length;
+  const quantidadeServicos = servicosFiltrados.length;
 
   async function salvarServico(dados) {
     if (editarServico) {
@@ -162,7 +170,7 @@ export default function FuncionarioCard({ funcionario }) {
 
   return (
     <div className="min-w-full h-full bg-gray-900 text-white flex flex-col p-4">
-      
+
       <div className="mb-3">
         <h2 className="text-[30px] font-bold">{funcionario.nome}</h2>
         <p className="text-gray-400 text-sm">Folha de controle</p>
@@ -202,8 +210,8 @@ export default function FuncionarioCard({ funcionario }) {
           <p className="text-gray-400 text-sm">Créditos</p>
           <p className="text-blue-400 font-bold">
             R$ {totalCreditos.toFixed(2).replace(".", ",")}
-        </p>
-</div>
+          </p>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-3">
@@ -235,109 +243,121 @@ export default function FuncionarioCard({ funcionario }) {
         </button>
       </div>
 
-      <p>Total de serviços  {quantidadeServicos}</p>
+      {/* ✅ FILTRO */}
+      <div className="flex items-center justify-between w-full gap-2 mb-3">
+        <p>Total de serviços {quantidadeServicos}</p>
 
-      <div className="flex-1 overflow-y-auto pr-1">
-        {servicos.map((s) => (
-          <div
-  key={s.id}
-  className="bg-gray-800 p-3 rounded mb-2 text-sm border border-gray-700 flex justify-between items-center"
->
-  {/* Lado esquerdo (infos) */}
-  <div>
-    <div className="font-bold">{s.cliente}</div>
-    <div className="text-gray-400">{s.tipo}</div>
-    <div className="text-green-400">
-      R$ {s.valor.toFixed(2).replace(".", ",")}
-    </div>
-    <div className="text-xs text-gray-500">
-      {new Date(s.data + "T00:00:00").toLocaleDateString()}
-    </div>
-  </div>
-
-  {/* Lado direito (botões) */}
-  <div className="flex flex-col gap-2">
-    <button
-      onClick={() => {
-        setEditarServico(s);
-        setModalServico(true);
-      }}
-      className="text-xs bg-blue-600 px-2 py-1 rounded"
-    >
-      Editar
-    </button>
-
-    <button
-      onClick={() => excluirServico(s.id)}
-      className="text-xs bg-red-600 px-2 py-1 rounded"
-    >
-      Excluir
-    </button>
-  </div>
-</div>
-        ))}
+        <select
+          value={filtroTipo}
+          onChange={(e) => setFiltroTipo(e.target.value)}
+          className="bg-gray-800 border border-gray-700 text-xs p-1 rounded"
+        >
+          <option value="">Todos</option>
+          {[...new Set(servicos.map((s) => s.tipo))].map((tipo) => (
+            <option key={tipo} value={tipo}>
+              {tipo}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <button
-        onClick={() => setMostrarDespesas(!mostrarDespesas)}
-        className="text-xs text-gray-400 mt-2"
-      >
-        {mostrarDespesas ? "Ocultar despesas" : "Mostrar despesas"}
-      </button>
-
-      {mostrarDespesas && (
-  <div className="max-h-[150px] overflow-y-auto mt-2">
-    {(despesas || []).map((d) => {
-      const isCredito = d.tipo === "Crédito";
-
-      return (
-        <div
-          key={d.id}
-          className="text-sm border-b border-gray-700 py-2 text-gray-300 flex justify-between items-center"
-        >
-          <div>
-            {/* Data */}
-            <div className="text-xs text-gray-500">
-              {new Date(d.data + "T00:00:00").toLocaleDateString()}
+      <div className="flex-1 overflow-y-auto pr-1">
+        {servicosFiltrados.map((s) => (
+          <div
+            key={s.id}
+            className="bg-gray-800 p-3 rounded mb-2 text-sm border border-gray-700 flex justify-between items-center"
+          >
+            <div>
+              <div className="font-bold">{s.cliente}</div>
+              <div className="text-gray-400">{s.tipo}</div>
+              <div className="text-green-400">
+                R$ {s.valor.toFixed(2).replace(".", ",")}
+              </div>
+              <div className="text-xs text-gray-500">
+                {new Date(s.data + "T00:00:00").toLocaleDateString()}
+              </div>
             </div>
 
-            {/* Descrição */}
-            <div className="font-medium">
-              {isCredito ? "Crédito" : d.tipo || "Sem descrição"}
-            </div>
-
-            {/* Valor (sempre vermelho) */}
-            <div className="text-red-400">
-              R$ {Number(d.valor || 0).toFixed(2).replace(".", ",")}
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            {/* Só permite editar se NÃO for crédito */}
-            {!isCredito && (
+            <div className="flex flex-col gap-2">
               <button
                 onClick={() => {
-                  setEditarDespesa(d);
-                  setModalDespesa(true);
+                  setEditarServico(s);
+                  setModalServico(true);
                 }}
                 className="text-xs bg-blue-600 px-2 py-1 rounded"
               >
                 Editar
               </button>
-            )}
 
-            <button
-              onClick={() => excluirDespesa(d.id)}
-              className="text-xs bg-red-600 px-2 py-1 rounded"
-            >
-              Excluir
-            </button>
+              <button
+                onClick={() => excluirServico(s.id)}
+                className="text-xs bg-red-600 px-2 py-1 rounded"
+              >
+                Excluir
+              </button>
+            </div>
           </div>
+        ))}
+      </div>
+
+      <button
+        onClick={() => setMostrarDespesas(!mostrarDespesas)}
+        className="bg-red-800 text-xs text-white mt-2 p-1"
+      >
+        {mostrarDespesas ? "Ocultar despesas" : "Mostrar despesas"}
+      </button>
+
+      {mostrarDespesas && (
+        <div className="max-h-[150px] overflow-y-auto mt-2">
+          {(despesas || []).map((d) => {
+            const isCredito = d.tipo === "Crédito";
+
+            return (
+              <div
+                key={d.id}
+                className="text-sm border-b border-gray-700 py-2 text-gray-300 flex justify-between items-center"
+              >
+                <div>
+                  <div className="text-xs text-gray-500">
+                    {new Date(d.data + "T00:00:00").toLocaleDateString()}
+                  </div>
+
+                  <div className="font-medium">
+                    {isCredito
+                      ? `Crédito - ${d.descricao || ""}`
+                      : d.tipo || "Sem descrição"}
+                  </div>
+
+                  <div className="text-red-400">
+                    R$ {Number(d.valor || 0).toFixed(2).replace(".", ",")}
+                  </div>
+                </div>
+
+                <div className="flex gap-2">
+                  {!isCredito && (
+                    <button
+                      onClick={() => {
+                        setEditarDespesa(d);
+                        setModalDespesa(true);
+                      }}
+                      className="text-xs bg-blue-600 px-2 py-1 rounded"
+                    >
+                      Editar
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => excluirDespesa(d.id)}
+                    className="text-xs bg-red-600 px-2 py-1 rounded"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      );
-    })}
-  </div>
-)}
+      )}
 
       {modalServico && (
         <ModalServico

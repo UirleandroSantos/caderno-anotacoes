@@ -25,6 +25,15 @@ export default function Dashboard({ user }) {
   const [menuAberto, setMenuAberto] = useState(false);
   const [modoMenu, setModoMenu] = useState("lista"); // lista | criar
 
+  // 🔎 BUSCA
+  const [busca, setBusca] = useState("");
+  const [resultadosBusca, setResultadosBusca] = useState([]);
+
+  const totalBusca = resultadosBusca.reduce(
+  (acc, item) => acc + Number(item.valor || 0),
+    0
+  );
+
   useEffect(() => {
     carregarFuncionarios();
   }, []);
@@ -32,6 +41,14 @@ export default function Dashboard({ user }) {
   useEffect(() => {
     carregarTotais();
   }, [dataInicio, dataFim]);
+
+  useEffect(() => {
+  if (busca) {
+    buscarServicos();
+  } else {
+    setResultadosBusca([]);
+  }
+}, [busca, dataInicio, dataFim]);
 
   async function carregarFuncionarios() {
     const { data } = await supabase
@@ -85,6 +102,35 @@ export default function Dashboard({ user }) {
         creditosFiltrados.reduce((a, b) => a + Number(b.valor || 0), 0)
       );
   }
+
+  // 🔎 BUSCAR SERVIÇOS POR CLIENTE/PET
+async function buscarServicos() {
+  const { data: funcs } = await supabase
+    .from("funcionarios")
+    .select("id, nome")
+    .eq("user_id", user.id);
+
+  const idsFuncionarios = (funcs || []).map((f) => f.id);
+
+  const { data: servicos } = await supabase
+    .from("servicos")
+    .select("*")
+    .in("funcionario_id", idsFuncionarios)
+    .ilike("cliente", `%${busca}%`)
+    .gte("data", dataInicio)
+    .lte("data", dataFim)
+    .order("data", { ascending: false });
+
+  const resultadoComFuncionario = (servicos || []).map((s) => {
+    const func = funcs.find((f) => f.id === s.funcionario_id);
+    return {
+      ...s,
+      funcionario_nome: func?.nome || "Desconhecido",
+    };
+  });
+
+  setResultadosBusca(resultadoComFuncionario);
+}
 
   async function criarFuncionario() {
     if (!nome) return alert("Digite um nome");
@@ -200,7 +246,7 @@ export default function Dashboard({ user }) {
             Sair
           </button>
         </div>
-              <h1 className="text-white-800 font-bold text-center text-xl mt-5">Dashboard Financeiro</h1>
+              <h1 className="text-white-800 font-bold text-center text-xl mt-5">Gestão Financeira</h1>
 
         <div className="w-full px-4">
 
@@ -224,7 +270,7 @@ export default function Dashboard({ user }) {
           {/* CARDS MOBILE */}
           <div className="flex flex-col gap-3">
             <div className="bg-gray-800 p-4 rounded">
-              <p className="text-gray-400 text-sm">Serviços</p>
+              <p className="text-gray-400 text-sm">Valor total Serviços</p>
               <p className="text-green-400 text-xl font-bold">
                 R$ {totalServicos.toFixed(2).replace(".",",")}
               </p>
@@ -257,6 +303,54 @@ export default function Dashboard({ user }) {
           <div className="text-center text-gray-500 mt-6">
             👉 Arraste para o lado
           </div>
+          {/* 🔎 BUSCA */}
+          <input
+            placeholder="Buscar cliente/pet..."
+            value={busca}
+            onChange={(e) => setBusca(e.target.value)}
+            className="bg-gray-800 border border-gray-700 p-2 rounded w-full mt-4"
+          />
+
+          {/* RESULTADO DA BUSCA */}
+{busca && (
+  <div className="mt-3">
+
+    {/* ✅ TOTAL DA BUSCA */}
+    <div className="bg-gray-800 p-2 rounded mb-2 text-sm border border-gray-700 flex justify-between">
+      <span>Total da busca</span>
+      <span className="text-green-400 font-bold">
+        R$ {totalBusca.toFixed(2).replace(".", ",")}
+      </span>
+    </div>
+
+    {/* 🔎 LISTA DE RESULTADOS */}
+    <div className="max-h-[300px] overflow-y-auto">
+      {resultadosBusca.map((s) => (
+        <div
+          key={s.id}
+          className="bg-gray-800 p-3 rounded mb-2 text-sm border border-gray-700"
+        >
+          <div className="font-bold">{s.cliente}</div>
+
+          <div className="text-gray-400">{s.tipo}</div>
+
+          <div className="text-green-400">
+            R$ {Number(s.valor).toFixed(2).replace(".", ",")}
+          </div>
+
+          <div className="text-xs text-gray-500">
+            {new Date(s.data + "T00:00:00").toLocaleDateString()}
+          </div>
+
+          <div className="text-xs text-blue-400 mt-1">
+            Funcionário: {s.funcionario_nome}
+          </div>
+        </div>
+      ))}
+    </div>
+
+  </div>
+)}
         </div>
       </div>
 

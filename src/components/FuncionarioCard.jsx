@@ -250,7 +250,7 @@ export default function FuncionarioCard({ funcionario }) {
         <select
           value={filtroTipo}
           onChange={(e) => setFiltroTipo(e.target.value)}
-          className="bg-gray-800 border border-gray-700 text-xs p-1 rounded"
+          className="bg-gray-800 border border-gray-700 text-xs p-1 rounded w-[70px]"
         >
           <option value="">Todos</option>
           {[...new Set(servicos.map((s) => s.tipo))].map((tipo) => (
@@ -308,7 +308,7 @@ export default function FuncionarioCard({ funcionario }) {
       </button>
 
       {mostrarDespesas && (
-        <div className="max-h-[150px] overflow-y-auto mt-2">
+        <div className="max-h-[50%] overflow-y-auto mt-2">
           {(despesas || []).map((d) => {
             const isCredito = d.tipo === "Crédito";
 

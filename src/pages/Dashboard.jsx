@@ -178,7 +178,7 @@ async function buscarServicos() {
   onClick={atualizarPagina}
   className="fixed bottom-6 right-6 bg-green-500 z-[9999] hover:bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg text-3xl"
 >
-  ⟳
+  <span className="relative top-[-2px] left-[2px]">⟳</span>
 </button>
       {/* DASHBOARD */}
       <div className="min-w-full h-full snap-start flex flex-col relative">

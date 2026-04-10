@@ -50,7 +50,7 @@ export default function Login({ setUser }) {
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
               <input
-                placeholder="Email/Usuário"
+                placeholder="Login"
                 className="w-full pl-10 pr-3 py-2 rounded bg-gray-800 border border-gray-700 outline-none focus:border-blue-500 text-white"
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -59,7 +59,9 @@ export default function Login({ setUser }) {
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
               <input
-                type="number"
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]"
                 placeholder="Senha"
                 className="w-full pl-10 pr-3 py-2 rounded bg-gray-800 border border-gray-700 outline-none focus:border-blue-500 text-white"
                 onChange={(e) => setSenha(e.target.value)}

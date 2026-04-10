@@ -27,15 +27,15 @@ export default function ModalCredito({ onClose, onSave }) {
         <h2 className="text-lg font-bold mb-3">Novo Crédito</h2>
 
         <input
-          placeholder="Tipo (ex: Entrada, Pix, etc)"
-          className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded"
-          onChange={(e) => setTipo(e.target.value)}
-        />
-
-        <input
-          placeholder="Descrição (opcional)"
+          placeholder="Descrição"
           className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded"
           onChange={(e) => setDescricao(e.target.value)}
+        />
+        
+        <input
+          placeholder="Tipo (ex: Adiantemente, empréstimo etc)"
+          className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded"
+          onChange={(e) => setTipo(e.target.value)}
         />
 
         <input

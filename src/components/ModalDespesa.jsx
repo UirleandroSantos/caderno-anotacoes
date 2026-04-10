@@ -27,15 +27,15 @@ export default function ModalDespesa({ onClose, onSave }) {
         <h2 className="text-lg font-bold mb-3">Nova Despesa</h2>
 
         <input
-          placeholder="Tipo (ex: Alimentação, Conta, etc)"
+          placeholder="Descrição"
           className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded"
-          onChange={(e) => setTipo(e.target.value)}
+          onChange={(e) => setDescricao(e.target.value)}
         />
 
         <input
-          placeholder="Descrição (opcional)"
+          placeholder="Tipo (ex: Alimentação, Combustível, etc)"
           className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded"
-          onChange={(e) => setDescricao(e.target.value)}
+          onChange={(e) => setTipo(e.target.value)}
         />
 
         <input

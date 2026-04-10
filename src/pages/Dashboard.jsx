@@ -250,7 +250,6 @@ async function buscarServicos() {
           >
             <Menu size={24} />
           </button>
-            <h1 className="flex items-center gap-2"><span>Dr Tosa</span><span><PawPrint size={16} /></span></h1>
           <button
             onClick={logout}
             className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"

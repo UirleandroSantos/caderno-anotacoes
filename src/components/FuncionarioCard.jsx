@@ -4,6 +4,7 @@ import { supabase } from "../services/supabase";
 import ModalServico from "./ModalServico";
 import ModalDespesa from "./ModalDespesa";
 import ModalCredito from "./ModalCredito";
+import { Pencil, Trash, Wrench, CreditCard, HandCoins, CalendarCheck } from "lucide-react";
 
 export default function FuncionarioCard({ funcionario }) {
   const hoje = new Date();
@@ -220,9 +221,10 @@ export default function FuncionarioCard({ funcionario }) {
             setEditarServico(null);
             setModalServico(true);
           }}
-          className="bg-green-600 hover:bg-green-700 flex-1 p-2 rounded"
+          className="bg-green-600 hover:bg-green-700 flex-1 center p-2 rounded flex items-center justify-center gap-2"
         >
-          + Serviço
+          <Wrench size={16} />
+          Serviço
         </button>
 
         <button
@@ -230,22 +232,24 @@ export default function FuncionarioCard({ funcionario }) {
             setEditarDespesa(null);
             setModalDespesa(true);
           }}
-          className="bg-red-600 hover:bg-red-700 flex-1 p-2 rounded"
+          className="bg-red-600 hover:bg-red-700 flex-1 p-2 rounded flex items-center justify-center gap-2"
         >
-          + Despesa
+          <CreditCard size={16} />
+          Despesa
         </button>
 
         <button
           onClick={() => setModalCredito(true)}
-          className="bg-blue-600 hover:bg-blue-700 flex-1 p-2 rounded"
+          className="bg-blue-600 hover:bg-blue-700 flex-1 p-2 rounded flex items-center justify-center gap-2"
         >
-          + Crédito
+          <HandCoins size={16} />
+          Crédito
         </button>
       </div>
 
       {/* ✅ FILTRO */}
       <div className="flex items-center justify-between w-full gap-2 mb-3">
-        <p>Total de serviços {quantidadeServicos}</p>
+        <p>Total de serviços: {quantidadeServicos}</p>
 
         <select
           value={filtroTipo}
@@ -273,8 +277,9 @@ export default function FuncionarioCard({ funcionario }) {
               <div className="text-green-400">
                 R$ {s.valor.toFixed(2).replace(".", ",")}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 flex items-center gap-1">
                 {new Date(s.data + "T00:00:00").toLocaleDateString()}
+                <CalendarCheck size={14} />
               </div>
             </div>
 
@@ -284,16 +289,16 @@ export default function FuncionarioCard({ funcionario }) {
                   setEditarServico(s);
                   setModalServico(true);
                 }}
-                className="text-xs bg-blue-600 px-2 py-1 rounded"
+                className="bg-blue-600 px-2 py-1 rounded w-fit"
               >
-                Editar
+                <Pencil size={16} />
               </button>
 
               <button
                 onClick={() => excluirServico(s.id)}
-                className="text-xs bg-red-600 px-2 py-1 rounded"
+                className="bg-red-600 px-2 py-1 rounded w-fit"
               >
-                Excluir
+                <Trash size={16} />
               </button>
             </div>
           </div>
@@ -342,7 +347,7 @@ export default function FuncionarioCard({ funcionario }) {
                       }}
                       className="text-xs bg-blue-600 px-2 py-1 rounded"
                     >
-                      Editar
+                      <Pencil size={16} />
                     </button>
                   )}
 
@@ -350,7 +355,7 @@ export default function FuncionarioCard({ funcionario }) {
                     onClick={() => excluirDespesa(d.id)}
                     className="text-xs bg-red-600 px-2 py-1 rounded"
                   >
-                    Excluir
+                    <Trash size={16} />
                   </button>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../services/supabase";
 import FuncionarioCard from "../components/FuncionarioCard";
+import { LogOut, Menu, RefreshCw, PawPrint   } from "lucide-react";
 
 export default function Dashboard({ user }) {
   const containerRef = useRef(null);
@@ -174,12 +175,12 @@ async function buscarServicos() {
       style={{ touchAction: "pan-x" }}
     >
       {/* 🔄 BOTÃO FLUTUANTE DE ATUALIZAR */}
-<button
-  onClick={atualizarPagina}
-  className="fixed bottom-6 right-6 bg-green-500 z-[9999] hover:bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg text-3xl"
->
-  <span className="relative top-[-2px] left-[2px]">⟳</span>
-</button>
+    <button
+      onClick={atualizarPagina}
+      className="fixed bottom-6 right-6 bg-green-500 z-[9999] hover:bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
+    >
+      <RefreshCw size={20} />
+    </button>
       {/* DASHBOARD */}
       <div className="min-w-full h-full snap-start flex flex-col relative">
 
@@ -246,18 +247,18 @@ async function buscarServicos() {
                 setModoMenu("lista");
             }}
             className="text-gray-300"
-            >
-            ☰ Menu
+          >
+            <Menu size={24} />
           </button>
-
+            <h1 className="flex items-center gap-2"><span>Dr Tosa</span><span><PawPrint size={16} /></span></h1>
           <button
             onClick={logout}
             className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
             >
-            Sair
+            <LogOut size={16} />
           </button>
         </div>
-              <h1 className="text-white-800 font-bold text-center text-xl mt-5">Gestão Financeira</h1>
+              <h2 className="text-white-800 font-bold text-center text-xl mt-5">Gestão Financeira</h2>
 
         <div className="w-full px-4">
 

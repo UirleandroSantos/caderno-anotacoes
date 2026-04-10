@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../services/supabase";
+import { Mail, Lock } from "lucide-react";
+
 
 export default function Login({ setUser }) {
   const [email, setEmail] = useState("");
@@ -39,27 +41,39 @@ export default function Login({ setUser }) {
           Faça login para continuar
         </p>
 
-        <input
-          placeholder="Email"
-          className="w-full mb-2 p-2 rounded bg-gray-800 border border-gray-700 outline-none focus:border-blue-500"
-          onChange={(e) => setEmail(e.target.value)}
-        />
+        <div className="space-y-3">
 
+  {/* Inputs */}
+  <div className="relative">
+    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+    <input
+      placeholder="Email/Usuário"
+      className="w-full pl-10 pr-3 py-2 rounded bg-gray-800 border border-gray-700 outline-none focus:border-blue-500 text-white"
+      onChange={(e) => setEmail(e.target.value)}
+    />
+      </div>
+
+      <div className="relative">
+        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
         <input
           type="password"
           placeholder="Senha"
-          className="w-full mb-2 p-2 rounded bg-gray-800 border border-gray-700 outline-none focus:border-blue-500"
+          className="w-full pl-10 pr-3 py-2 rounded bg-gray-800 border border-gray-700 outline-none focus:border-blue-500 text-white"
           onChange={(e) => setSenha(e.target.value)}
         />
+      </div>
 
-        <label className="flex items-center gap-2 mb-4 text-sm text-gray-400">
-          <input
-            type="checkbox"
-            onChange={() => setManter(!manter)}
-            className="accent-blue-500"
-          />
+      {/* Manter conectado */}
+      <div className="flex items-center gap-2 mt-2">
+        <input type="checkbox" className="accent-blue-500" />
+        <label className="text-sm text-gray-400">
           Manter conectado
         </label>
+      </div>
+
+    </div>
+          Manter conectado
+      
 
         <button
           onClick={handleLogin}

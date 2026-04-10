@@ -221,7 +221,7 @@ export default function FuncionarioCard({ funcionario }) {
             setEditarServico(null);
             setModalServico(true);
           }}
-          className="bg-green-600 hover:bg-green-700 flex-1 center p-2 rounded flex items-center justify-center gap-2"
+          className="bg-green-600 hover:bg-green-700 flex-1 center p-2 rounded flex items-center fy-centerjusti gap-2"
         >
           <Wrench size={16} />
           Serviço

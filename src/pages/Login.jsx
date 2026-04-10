@@ -30,10 +30,11 @@ export default function Login({ setUser }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-950 text-white overflow-hidden">
+    <div className="relative h-screen overflow-hidden flex flex-col">
+      <div className="min-h-screen flex flex-col bg-gray-950 text-white overflow-hidden">
       
       {/* CENTRO */}
-      <div className="flex flex-1 items-center justify-center">
+      <div className="absolute inset-0 pb-40 flex items-center justify-center">
         
         <div className="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-80 shadow-xl">
           
@@ -90,9 +91,11 @@ export default function Login({ setUser }) {
 
       </div>
 
-      {/* FOOTER */}
-      <Footer />
-
+    </div>
+    {/* FOOTER */}
+      <div className="absolute bottom-0 w-full">
+        <Footer />
+      </div>
     </div>
   );
 }

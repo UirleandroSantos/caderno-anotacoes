@@ -64,7 +64,7 @@ export default function Login({ setUser }) {
       </div>
 
       {/* Manter conectado */}
-      <div className="flex items-center gap-2 mt-2">
+      <div className="flex items-center gap-2 mt-2 mb-2">
         <input type="checkbox" className="accent-blue-500" />
         <label className="text-sm text-gray-400">
           Manter conectado
@@ -72,8 +72,6 @@ export default function Login({ setUser }) {
       </div>
 
     </div>
-          Manter conectado
-      
 
         <button
           onClick={handleLogin}

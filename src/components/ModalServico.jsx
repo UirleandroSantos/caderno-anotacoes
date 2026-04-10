@@ -46,6 +46,7 @@ export default function ModalServico({ onClose, onSave }) {
 
         <input
           placeholder="Valor"
+          inputMode="numeric"
           className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded outline-none focus:border-blue-500"
           onChange={(e) => setValor(e.target.value)}
         />

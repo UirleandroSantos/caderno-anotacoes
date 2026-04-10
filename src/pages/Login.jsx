@@ -93,7 +93,7 @@ export default function Login({ setUser }) {
 
     </div>
     {/* FOOTER */}
-      <div className="absolute bottom-0 w-full">
+      <div className="absolute bottom-0 w-full flex items-center justify-center">
         <Footer />
       </div>
     </div>

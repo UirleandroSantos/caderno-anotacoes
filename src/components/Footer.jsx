@@ -2,8 +2,8 @@ import { Mail, Phone } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="w-full mt-10 border-t border-slate-700 bg-slate-900/80 backdrop-blur">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+    <footer className="w-full border-t border-slate-700 bg-slate-900/80 backdrop-blur">
+      <div className="max-w-6xl mx-auto px-4 py-3">
 
         {/* Contatos */}
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-400">

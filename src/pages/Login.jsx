@@ -30,7 +30,7 @@ export default function Login({ setUser }) {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-950 text-white">
+    <div className="min-h-screen flex flex-col bg-gray-950 text-white overflow-hidden">
       
       {/* CENTRO */}
       <div className="flex flex-1 items-center justify-center">

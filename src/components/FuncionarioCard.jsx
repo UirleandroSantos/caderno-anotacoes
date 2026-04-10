@@ -287,7 +287,7 @@ export default function FuncionarioCard({ funcionario }) {
               <div className="text-green-400">
                 R$ {s.valor.toFixed(2).replace(".", ",")}
               </div>
-              <div className="text-xs text-gray-500 flex items-center gap-1">
+              <div className="text-xs text-gray-500 flex gap-1">
                 {new Date(s.data + "T00:00:00").toLocaleDateString()}
                 <CalendarCheck size={14} />
               </div>

@@ -13,6 +13,10 @@ export default function FuncionarioCard({ funcionario }) {
 
   const hojeFormatado = hoje.toLocaleDateString("sv-SE");
 
+  const nomeDia = hoje.toLocaleDateString("pt-BR", {
+    weekday: "long", 
+  });
+
   const [dataInicio, setDataInicio] = useState(primeiroDia);
   const [dataFim, setDataFim] = useState(hojeFormatado);
 
@@ -172,9 +176,15 @@ export default function FuncionarioCard({ funcionario }) {
   return (
     <div className="min-w-full h-full bg-gray-900 text-white flex flex-col p-4">
 
-      <div className="mb-3">
-        <h2 className="text-[30px] font-bold">{funcionario.nome}</h2>
-        <p className="text-gray-400 text-sm">Folha de controle</p>
+      <div className="mb-3 flex justify-between items-center">
+        <div>
+          <h2 className="text-[30px] font-bold">{funcionario.nome}</h2>
+          <p className="text-gray-400 text-sm">Folha de controle</p>
+        </div>
+        <div className="flex flex-col items-center">
+          <p className="text-xl">{nomeDia}</p>
+          <p>{hojeFormatado.replace("-","  ").replace("-"," ")}</p>
+        </div>
       </div>
 
       <div className="flex gap-2 mb-3">

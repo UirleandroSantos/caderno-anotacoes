@@ -382,7 +382,7 @@ export default function FuncionarioCard({ funcionario }) {
                         setEditarDespesa(d);
                         setModalDespesa(true);
                       }}
-                      className="text-xs bg-blue-600 px-2 py-1 rounded"
+                      className="text-xs bg-blue-600 px-2 py-1 rounded z-[9999]"
                     >
                       <Pencil size={16} />
                     </button>
@@ -390,7 +390,7 @@ export default function FuncionarioCard({ funcionario }) {
 
                   <button
                     onClick={() => excluirDespesa(d.id)}
-                    className="text-xs bg-red-600 px-2 py-1 rounded"
+                    className="text-xs bg-red-600 px-2 py-1 rounded z-[9999]"
                   >
                     <Trash size={16} />
                   </button>

@@ -276,44 +276,71 @@ export default function FuncionarioCard({ funcionario }) {
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1">
-        {servicosFiltrados.map((s) => (
-          <div
-            key={s.id}
-            className="bg-gray-800 p-3 rounded mb-2 text-sm border border-gray-700 flex justify-between items-center"
-          >
-            <div>
-              <div className="font-bold">{s.cliente}</div>
-              <div className="text-gray-400">{s.tipo}</div>
-              <div className="text-green-400">
-                R$ {s.valor.toFixed(2).replace(".", ",")}
-              </div>
-              <div className="text-xs text-gray-500 flex gap-1">
-                {new Date(s.data + "T00:00:00").toLocaleDateString()}
-                <CalendarCheck size={14} />
-              </div>
+  {servicosFiltrados.map((s, index) => {
+    const dataAtual = new Date(s.data + "T00:00:00");
+    const dataAnterior =
+      index > 0
+        ? new Date(servicosFiltrados[index - 1].data + "T00:00:00")
+        : null;
+
+    const mudouDia =
+      !dataAnterior ||
+      dataAtual.toDateString() !== dataAnterior.toDateString();
+
+    const nomeDia = dataAtual.toLocaleDateString("pt-BR", {
+      weekday: "long",
+    });
+
+    const nomeDiaFormatado =
+      nomeDia.charAt(0).toUpperCase() + nomeDia.slice(1);
+
+    return (
+      <div key={s.id}>
+        
+        {/* 🔥 TÍTULO DO DIA */}
+        {mudouDia && (
+          <div className="text-xs text-gray-500 mt-3 mb-1 px-1">
+            {nomeDiaFormatado}
+          </div>
+        )}
+
+        {/* CARD */}
+        <div className="bg-gray-800 p-3 rounded mb-2 text-sm border border-gray-700 flex justify-between items-center">
+          <div>
+            <div className="font-bold">{s.cliente}</div>
+            <div className="text-gray-400">{s.tipo}</div>
+            <div className="text-green-400">
+              R$ {s.valor.toFixed(2).replace(".", ",")}
             </div>
-
-            <div className="flex flex-col gap-2">
-              <button
-                onClick={() => {
-                  setEditarServico(s);
-                  setModalServico(true);
-                }}
-                className="bg-blue-600 px-2 py-1 rounded w-fit"
-              >
-                <Pencil size={16} />
-              </button>
-
-              <button
-                onClick={() => excluirServico(s.id)}
-                className="bg-red-600 px-2 py-1 rounded w-fit"
-              >
-                <Trash size={16} />
-              </button>
+            <div className="text-xs text-gray-500 flex gap-1 items-center">
+              {dataAtual.toLocaleDateString()}
+              <CalendarCheck size={14} />
             </div>
           </div>
-        ))}
+
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => {
+                setEditarServico(s);
+                setModalServico(true);
+              }}
+              className="bg-blue-600 px-2 py-1 rounded w-fit"
+            >
+              <Pencil size={16} />
+            </button>
+
+            <button
+              onClick={() => excluirServico(s.id)}
+              className="bg-red-600 px-2 py-1 rounded w-fit"
+            >
+              <Trash size={16} />
+            </button>
+          </div>
+        </div>
       </div>
+    );
+  })}
+</div>
 
       <button
         onClick={() => setMostrarDespesas(!mostrarDespesas)}

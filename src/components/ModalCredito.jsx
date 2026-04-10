@@ -3,20 +3,22 @@ import { useState } from "react";
 export default function ModalCredito({ onClose, onSave }) {
   const hoje = new Date().toISOString().split("T")[0];
 
+  const [tipo, setTipo] = useState("");
+  const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState("");
   const [data, setData] = useState(hoje);
-  const [descricao, setDescricao] = useState("");
 
   function salvar() {
-  if (!valor) return alert("Preencha");
+    if (!tipo || !valor) return alert("Preencha");
 
-  onSave({
-    tipo: "Crédito",
-    valor: Number(valor), // ✅ CORREÇÃO
-    data,
-    descricao,
-  });
-}
+    onSave({
+      categoria: "Crédito", // 🔥 NOVO
+      tipo,
+      descricao,
+      valor: Number(valor),
+      data,
+    });
+  }
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
@@ -25,7 +27,13 @@ export default function ModalCredito({ onClose, onSave }) {
         <h2 className="text-lg font-bold mb-3">Novo Crédito</h2>
 
         <input
-          placeholder="Descrição"
+          placeholder="Tipo (ex: Entrada, Pix, etc)"
+          className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded"
+          onChange={(e) => setTipo(e.target.value)}
+        />
+
+        <input
+          placeholder="Descrição (opcional)"
           className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded"
           onChange={(e) => setDescricao(e.target.value)}
         />
@@ -33,7 +41,7 @@ export default function ModalCredito({ onClose, onSave }) {
         <input
           placeholder="Valor"
           inputMode="numeric"
-          className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded outline-none focus:border-blue-500"
+          className="bg-gray-800 border border-gray-700 p-2 w-full mb-2 rounded"
           onChange={(e) => setValor(e.target.value)}
         />
 
@@ -45,17 +53,11 @@ export default function ModalCredito({ onClose, onSave }) {
         />
 
         <div className="flex gap-2">
-          <button
-            onClick={salvar}
-            className="bg-green-600 hover:bg-green-700 flex-1 p-2 rounded font-medium"
-          >
+          <button onClick={salvar} className="bg-green-600 flex-1 p-2 rounded">
             Salvar
           </button>
 
-          <button
-            onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 flex-1 p-2 rounded"
-          >
+          <button onClick={onClose} className="bg-gray-700 flex-1 p-2 rounded">
             Cancelar
           </button>
         </div>

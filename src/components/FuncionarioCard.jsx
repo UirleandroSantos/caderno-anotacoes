@@ -71,12 +71,17 @@ export default function FuncionarioCard({ funcionario }) {
   );
 
   const totalDespesas = despesas
-    .filter((d) => d.tipo !== "Crédito")
-    .reduce((a, b) => a + Number(b.valor || 0), 0);
+  .filter((d) =>
+    d.categoria === "Despesa" ||
+    (!d.categoria && d.tipo !== "Crédito")
+  )
+  .reduce((a, b) => a + Number(b.valor || 0), 0);
 
   const totalCreditos = despesas
-    .filter((d) => d.tipo === "Crédito")
-    .reduce((a, b) => a + Number(b.valor || 0), 0);
+  .filter((d) =>
+    d.categoria === "Crédito" || d.tipo === "Crédito"
+  )
+  .reduce((a, b) => a + Number(b.valor || 0), 0);
 
   const quantidadeServicos = servicosFiltrados.length;
 
@@ -276,10 +281,10 @@ export default function FuncionarioCard({ funcionario }) {
       </div>
 
       <div className="flex-1 overflow-y-auto pr-1">
-  {servicosFiltrados.map((s, index) => {
-    const dataAtual = new Date(s.data + "T00:00:00");
-    const dataAnterior =
-      index > 0
+        {servicosFiltrados.map((s, index) => {
+          const dataAtual = new Date(s.data + "T00:00:00");
+          const dataAnterior =
+            index > 0
         ? new Date(servicosFiltrados[index - 1].data + "T00:00:00")
         : null;
 
@@ -352,7 +357,8 @@ export default function FuncionarioCard({ funcionario }) {
       {mostrarDespesas && (
         <div className="max-h-[50%] overflow-y-auto mt-2">
           {(despesas || []).map((d) => {
-            const isCredito = d.tipo === "Crédito";
+            const isCredito =
+              d.categoria === "Crédito" || d.tipo === "Crédito";
 
             return (
               <div
@@ -365,9 +371,8 @@ export default function FuncionarioCard({ funcionario }) {
                   </div>
 
                   <div className="font-medium">
-                    {isCredito
-                      ? `Crédito - ${d.descricao || ""}`
-                      : d.tipo || "Sem descrição"}
+                    {d.tipo}
+                    {d.descricao && ` - ${d.descricao}`}
                   </div>
 
                   <div className="text-red-400">

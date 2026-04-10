@@ -82,7 +82,7 @@ export default function Dashboard({ user }) {
 
     const { data: despesas } = await supabase
       .from("despesas_funcionario")
-      .select("valor, tipo")
+      .select("valor, tipo, categoria")
       .in("funcionario_id", idsFuncionarios)
       .gte("data", dataInicio)
       .lte("data", dataFim);
@@ -92,11 +92,16 @@ export default function Dashboard({ user }) {
     );
 
     const despesasFiltradas = (despesas || []).filter(
-        (d) => d.tipo !== "Crédito"
+        (d) =>
+          d.categoria === "Despesa" ||
+          (!d.categoria && d.tipo !== "Crédito")
       );
 
+
       const creditosFiltrados = (despesas || []).filter(
-        (d) => d.tipo === "Crédito"
+        (d) =>
+          d.categoria === "Crédito" ||
+          d.tipo === "Crédito"
       );
 
       setTotalDespesas(

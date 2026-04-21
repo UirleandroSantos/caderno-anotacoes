@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "../services/supabase";
 import FuncionarioCard from "../components/FuncionarioCard";
 import { LogOut, Menu, RefreshCw, PawPrint   } from "lucide-react";
+import ModalDespesaAdmin from "../components/ModalDespesaAdmin";
 
 export default function Dashboard({ user }) {
   const containerRef = useRef(null);
@@ -18,6 +19,7 @@ export default function Dashboard({ user }) {
 
   const [totalServicos, setTotalServicos] = useState(0);
   const [totalDespesas, setTotalDespesas] = useState(0);
+  const [modalDespesaAdmin, setModalDespesaAdmin] = useState(false);
   const [totalCreditos, setTotalCreditos] = useState(0);
 
   const [funcionarios, setFuncionarios] = useState([]);
@@ -159,6 +161,17 @@ async function buscarServicos() {
     setModoMenu("lista");
   }
 
+  async function salvarDespesaAdmin(dados) {
+  await supabase.from("despesas_administrativas").insert([
+    {
+      user_id: user.id,
+      ...dados,
+    },
+  ]);
+
+  setModalDespesaAdmin(false);
+}
+
   function logout() {
     localStorage.removeItem("usuario");
     window.location.reload();
@@ -202,6 +215,13 @@ async function buscarServicos() {
                   className="w-full text-left p-2 rounded hover:bg-gray-700"
                 >
                   ➕ Cadastrar Funcionário
+                </button>
+
+                <button
+                  onClick={() => setModalDespesaAdmin(true)}
+                  className="w-full text-left p-2 rounded hover:bg-gray-700"
+                >
+                  💼 cadastrar Despesa
                 </button>
 
                 <button
@@ -294,7 +314,7 @@ async function buscarServicos() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-gray-800 p-4 rounded">
-              <p className="text-gray-400 text-sm">Despesas</p>
+              <p className="text-gray-400 text-sm">Despesas Equipe</p>
               <p className="text-red-400 text-xl font-bold">
                 R$ {totalDespesas.toFixed(2).replace(".",",")}
               </p>
@@ -316,9 +336,6 @@ async function buscarServicos() {
             </div>
           </div>
 
-          <div className="text-center text-gray-500 mt-6">
-            👉 Arraste para o lado
-          </div>
           {/* 🔎 BUSCA */}
           <input
             placeholder="Buscar cliente/pet..."
@@ -380,6 +397,13 @@ async function buscarServicos() {
           ))}
         </div>
       </div>
+      {modalDespesaAdmin && (
+        <ModalDespesaAdmin
+          onClose={() => setModalDespesaAdmin(false)}
+          onSave={salvarDespesaAdmin}
+        />
+      )}
     </div>
+    
   );
 }

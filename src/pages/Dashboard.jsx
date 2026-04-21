@@ -205,10 +205,10 @@ async function buscarDespesasAdmin() {
   buscarDespesasAdmin();
 }, [dataInicio, dataFim]);
 
-//   const totalDespesasAdmin = despesasAdmin.reduce(
-//   (acc, d) => acc + Number(d.valor),
-//   0
-// );
+  const totalDespesasAdmin = despesasAdmin.reduce(
+  (acc, d) => acc + Number(d.valor),
+  0
+);
 
 // const lucro = totalServicos - totalDespesas - totalDespesasAdmin;
 

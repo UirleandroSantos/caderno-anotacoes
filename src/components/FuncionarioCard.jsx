@@ -17,8 +17,8 @@ export default function FuncionarioCard({ funcionario }) {
     weekday: "long", 
   });
 
-  const [dataInicio, setDataInicio] = useState(primeiroDia);
-  const [dataFim, setDataFim] = useState(hojeFormatado);
+  // const [dataInicio, setDataInicio] = useState(primeiroDia);
+  // const [dataFim, setDataFim] = useState(hojeFormatado);
 
   const [servicos, setServicos] = useState([]);
   const [despesas, setDespesas] = useState([]);
@@ -31,6 +31,44 @@ export default function FuncionarioCard({ funcionario }) {
   const [editarDespesa, setEditarDespesa] = useState(null);
 
   const [mostrarDespesas, setMostrarDespesas] = useState(false);
+
+  const hojeBase = new Date();
+const diaAtual = hojeBase.getDate();
+
+const inicioQuinzena =
+  diaAtual <= 15
+    ? new Date(hojeBase.getFullYear(), hojeBase.getMonth(), 1)
+    : new Date(hojeBase.getFullYear(), hojeBase.getMonth(), 16);
+
+const fimQuinzena =
+  diaAtual <= 15
+    ? new Date(hojeBase.getFullYear(), hojeBase.getMonth(), 15)
+    : hojeBase;
+
+const [dataInicio, setDataInicio] = useState(
+  inicioQuinzena.toLocaleDateString("sv-SE")
+);
+
+const [dataFim, setDataFim] = useState(
+  fimQuinzena.toLocaleDateString("sv-SE")
+);
+
+  function aplicarPrimeiraQuinzena() {
+  const hoje = new Date();
+  const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+  const fim = new Date(hoje.getFullYear(), hoje.getMonth(), 15);
+
+  setDataInicio(inicio.toLocaleDateString("sv-SE"));
+  setDataFim(fim.toLocaleDateString("sv-SE"));
+}
+
+function aplicarSegundaQuinzena() {
+  const hoje = new Date();
+  const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 16);
+
+  setDataInicio(inicio.toLocaleDateString("sv-SE"));
+  setDataFim(hoje.toLocaleDateString("sv-SE"));
+}
 
   // ✅ NOVO: filtro
   const [filtroTipo, setFiltroTipo] = useState("");
@@ -191,8 +229,25 @@ export default function FuncionarioCard({ funcionario }) {
           <p>{hojeFormatado.replace("-","  ").replace("-"," ")}</p>
         </div>
       </div>
+      
+      <div className="flex gap-2 mb-2">
+          <button
+            onClick={aplicarPrimeiraQuinzena}
+            className="bg-purple-600 hover:bg-purple-700 flex-1 p-2 rounded text-sm"
+          >
+            1° Quinzena
+          </button>
+
+          <button
+            onClick={aplicarSegundaQuinzena}
+            className="bg-purple-800 hover:bg-purple-900 flex-1 p-2 rounded text-sm"
+          >
+            2° Quinzena
+          </button>
+        </div>
 
       <div className="flex gap-2 mb-3">
+
         <input
           type="date"
           value={dataInicio}

@@ -28,6 +28,8 @@ export default function Dashboard({ user }) {
   const [menuAberto, setMenuAberto] = useState(false);
   const [modoMenu, setModoMenu] = useState("lista"); // lista | criar
 
+  const [despesasAdmin, setDespesasAdmin] = useState([]);
+
   // 🔎 BUSCA
   const [busca, setBusca] = useState("");
   const [resultadosBusca, setResultadosBusca] = useState([]);
@@ -172,6 +174,21 @@ async function buscarServicos() {
   setModalDespesaAdmin(false);
 }
 
+async function buscarDespesasAdmin() {
+  const { data, error } = await supabase
+    .from("despesas_administrativas")
+    .select("*")
+    .gte("data", dataInicio)
+    .lte("data", dataFim)
+    .order("data", { ascending: false });
+
+  if (error) {
+    console.error("Erro ao buscar despesas admin:", error);
+  } else {
+    setDespesasAdmin(data);
+  }
+}
+
   function logout() {
     localStorage.removeItem("usuario");
     window.location.reload();
@@ -184,7 +201,16 @@ async function buscarServicos() {
     };
   }, []);
 
-  const lucro = totalServicos - (totalDespesas * 0.5);
+  useEffect(() => {
+  buscarDespesasAdmin();
+}, [dataInicio, dataFim]);
+
+//   const totalDespesasAdmin = despesasAdmin.reduce(
+//   (acc, d) => acc + Number(d.valor),
+//   0
+// );
+
+// const lucro = totalServicos - totalDespesas - totalDespesasAdmin;
 
   return (
     <div
@@ -328,12 +354,19 @@ async function buscarServicos() {
             </div>
             </div>
 
-            <div className="bg-gray-800 p-4 rounded">
+            <div className="bg-gray-800 p-3 rounded border border-gray-700">
+              <p className="text-sm text-gray-400">Despesas Administrativas</p>
+              <p className="text-lg font-bold text-red-400">
+                R$ {totalDespesasAdmin.toFixed(2).replace(".",",")}
+              </p>
+            </div>
+
+            {/* <div className="bg-gray-800 p-4 rounded">
               <p className="text-gray-400 text-sm">Lucro</p>
               <p className="text-blue-400 text-xl font-bold">
                 R$ {lucro.toFixed(2).replace(".",",")}
               </p>
-            </div>
+            </div> */}
           </div>
 
           {/* 🔎 BUSCA */}

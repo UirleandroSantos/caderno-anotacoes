@@ -308,7 +308,7 @@ async function buscarDespesasAdmin() {
             <LogOut size={16} />
           </button>
         </div>
-              <h2 className="text-white-800 font-bold text-center text-xl mt-5">Gestão Financeira</h2>
+              <h2 className="text-white-800 font-bold text-center text-xl mt-5">Bem-vindo: Aldenir</h2>
 
         <div className="w-full px-4">
 

@@ -433,10 +433,10 @@ function aplicarSegundaQuinzena() {
 
 <div
   className={`overflow-hidden transition-all duration-300 ${
-    mostrarDespesas ? "max-h-[500px] mt-2" : "max-h-0"
+    mostrarDespesas ? "max-h-screen mt-2" : "max-h-0"
   }`}
 >
-  <div className="max-h-[50%] overflow-y-auto">
+  <div className="max-h-[calc(100vh-420px)] overflow-y-auto">
     {(despesas || []).map((d) => {
       const isCredito =
         d.categoria === "Crédito" || d.tipo === "Crédito";

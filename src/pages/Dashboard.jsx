@@ -308,7 +308,8 @@ async function buscarDespesasAdmin() {
             <LogOut size={16} />
           </button>
         </div>
-              <h2 className="text-white-800 font-bold text-center text-xl mt-5">Bem-vindo: Aldenir</h2>
+              <h2 className="text-white-800 font-bold text-center text-xl mt-5">Olá: José Aldenir</h2>
+              <strong className="text-white-800 font-bold text-center mt-3">Gestão financeira</strong>
 
         <div className="w-full px-4">
 
@@ -332,7 +333,7 @@ async function buscarDespesasAdmin() {
           {/* CARDS MOBILE */}
           <div className="flex flex-col gap-3">
             <div className="bg-gray-800 p-4 rounded">
-              <p className="text-gray-400 text-sm">Valor total Serviços</p>
+              <p className="text-gray-400 text-sm">Faturamento total</p>
               <p className="text-green-400 text-xl font-bold">
                 R$ {totalServicos.toFixed(2).replace(".",",")}
               </p>
@@ -347,7 +348,7 @@ async function buscarDespesasAdmin() {
             </div>
 
             <div className="bg-gray-800 p-4 rounded">
-              <p className="text-gray-400 text-sm">Créditos</p>
+              <p className="text-gray-400 text-sm">Créditos Equipe</p>
               <p className="text-blue-400 text-xl font-bold">
                 R$ {totalCreditos.toFixed(2).replace(".",",")}
               </p>

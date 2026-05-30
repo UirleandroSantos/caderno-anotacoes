@@ -264,7 +264,7 @@ function aplicarSegundaQuinzena() {
 
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="bg-gray-800 p-3 rounded">
-          <p className="text-gray-400 text-sm">Serviços</p>
+          <p className="text-gray-400 text-sm">Faturamento</p>
           <p className="text-green-400 font-bold">
             R$ {totalServicos.toFixed(2).replace(".", ",")}
           </p>

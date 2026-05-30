@@ -279,7 +279,7 @@ function aplicarSegundaQuinzena() {
 
         <div className="bg-gray-800 p-3 rounded">
           <p className="text-gray-400 text-sm">Créditos</p>
-          <p className="text-blue-400 font-bold">
+          <p className="text-orange-500 font-bold">
             R$ {totalCreditos.toFixed(2).replace(".", ",")}
           </p>
         </div>
@@ -310,7 +310,7 @@ function aplicarSegundaQuinzena() {
 
         <button
           onClick={() => setModalCredito(true)}
-          className="bg-blue-600 hover:bg-blue-700 flex-1 p-2 rounded flex items-center justify-center gap-2"
+          className="bg-orange-500 hover:bg-blue-700 flex-1 p-2 rounded flex items-center justify-center gap-2"
         >
           <HandCoins size={16} />
           Crédito
@@ -402,64 +402,90 @@ function aplicarSegundaQuinzena() {
   })}
 </div>
 
-      <button
-        onClick={() => setMostrarDespesas(!mostrarDespesas)}
-        className="bg-red-800 text-xs text-white mt-2 p-1"
-      >
-        {mostrarDespesas ? "Ocultar despesas" : "Mostrar despesas"}
-      </button>
+      <div
+  onClick={() => setMostrarDespesas(!mostrarDespesas)}
+  className="mt-2 bg-gray-800 border border-gray-700 rounded-lg p-3 cursor-pointer hover:bg-gray-700 transition-all duration-200"
+>
+  <div className="flex justify-between items-center">
+    <div>
+      <p className="font-medium text-sm">
+        {mostrarDespesas
+          ? "▲ Despesas e Créditos"
+          : "▼ Despesas e Créditos"}
+      </p>
 
-      {mostrarDespesas && (
-        <div className="max-h-[50%] overflow-y-auto mt-2">
-          {(despesas || []).map((d) => {
-            const isCredito =
-              d.categoria === "Crédito" || d.tipo === "Crédito";
+      <p className="text-xs text-gray-400">
+        {despesas.length} registro{despesas.length !== 1 ? "s" : ""}
+      </p>
+    </div>
 
-            return (
-              <div
-                key={d.id}
-                className="text-sm border-b border-gray-700 py-2 text-gray-300 flex justify-between items-center"
+    <div className="text-right">
+      <p className="text-red-400 text-sm font-bold">
+       <span className="text-gray-400">Despesas - </span> R$ {totalDespesas.toFixed(2).replace(".", ",")}
+      </p>
+
+      <p className="text-orange-500 text-sm font-bold">
+        <span className="text-gray-400">Crédito - </span> R$ {totalCreditos.toFixed(2).replace(".", ",")}
+      </p>
+    </div>
+  </div>
+</div>
+
+<div
+  className={`overflow-hidden transition-all duration-300 ${
+    mostrarDespesas ? "max-h-[500px] mt-2" : "max-h-0"
+  }`}
+>
+  <div className="max-h-[50%] overflow-y-auto">
+    {(despesas || []).map((d) => {
+      const isCredito =
+        d.categoria === "Crédito" || d.tipo === "Crédito";
+
+      return (
+        <div
+          key={d.id}
+          className="text-sm border-b border-gray-700 py-2 text-gray-300 flex justify-between items-center"
+        >
+          <div>
+            <div className="text-xs text-gray-500">
+              {new Date(d.data + "T00:00:00").toLocaleDateString()}
+            </div>
+
+            <div className="font-medium">
+              {d.tipo}
+              {d.descricao && ` - ${d.descricao}`}
+            </div>
+
+            <div className="text-red-400">
+              R$ {Number(d.valor || 0).toFixed(2).replace(".", ",")}
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            {!isCredito && (
+              <button
+                onClick={() => {
+                  setEditarDespesa(d);
+                  setModalDespesa(true);
+                }}
+                className="text-xs bg-blue-600 px-2 py-1 rounded z-[9999]"
               >
-                <div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(d.data + "T00:00:00").toLocaleDateString()}
-                  </div>
+                <Pencil size={16} />
+              </button>
+            )}
 
-                  <div className="font-medium">
-                    {d.tipo}
-                    {d.descricao && ` - ${d.descricao}`}
-                  </div>
-
-                  <div className="text-red-400">
-                    R$ {Number(d.valor || 0).toFixed(2).replace(".", ",")}
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  {!isCredito && (
-                    <button
-                      onClick={() => {
-                        setEditarDespesa(d);
-                        setModalDespesa(true);
-                      }}
-                      className="text-xs bg-blue-600 px-2 py-1 rounded z-[9999]"
-                    >
-                      <Pencil size={16} />
-                    </button>
-                  )}
-
-                  <button
-                    onClick={() => excluirDespesa(d.id)}
-                    className="text-xs bg-red-600 px-2 py-1 rounded z-[9999]"
-                  >
-                    <Trash size={16} />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+            <button
+              onClick={() => excluirDespesa(d.id)}
+              className="text-xs bg-red-600 px-2 py-1 rounded z-[9999]"
+            >
+              <Trash size={16} />
+            </button>
+          </div>
         </div>
-      )}
+      );
+    })}
+  </div>
+</div>
 
       {modalServico && (
         <ModalServico

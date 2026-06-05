@@ -265,18 +265,24 @@ export default function FuncionarioCard({ funcionario }) {
 
       {/* Inputs de Data */}
       <div className="flex gap-2 mb-3">
-        <input
+        <div>
+          <span className="text-gray-500">Data inicio</span>
+          <input
           type="date"
           value={dataInicio}
           onChange={(e) => setDataInicio(e.target.value)}
           className="bg-gray-800 border border-gray-700 p-2 w-full rounded"
         />
-        <input
+        </div>
+        <div>
+          <span className="text-gray-500">Data fim</span>
+          <input
           type="date"
           value={dataFim}
           onChange={(e) => setDataFim(e.target.value)}
           className="bg-gray-800 border border-gray-700 p-2 w-full rounded"
         />
+        </div>
       </div>
 
       {/* Cards de Resumo Financeiro */}
@@ -337,7 +343,7 @@ export default function FuncionarioCard({ funcionario }) {
       </div>
 
       {/* Seletor de Tipo de Filtro */}
-      <div className="flex items-center justify-between w-full gap-2 mb-3">
+      <div className="flex items-center justify-between w-full gap-2 mb-1">
         <p>Total de serviços: {quantidadeServicos}</p>
 
         <select
@@ -379,7 +385,7 @@ export default function FuncionarioCard({ funcionario }) {
               
               {/* TÍTULO DO DIA */}
               {mudouDia && (
-                <div className="text-xs text-gray-500 mt-3 mb-1 px-1">
+                <div className="text-xs text-gray-500 mt-1 mb-1 px-1">
                   {nomeDiaFormatado}
                 </div>
               )}

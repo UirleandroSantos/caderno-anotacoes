@@ -166,50 +166,87 @@ export default function FuncionarioCard({ funcionario }) {
       return `${dia}/${mes}/${ano}`;
     };
 
+    const formatarMoeda = (valor) => {
+      return Number(valor).toFixed(2).replace(".", ",");
+    };
+
     const dataInicioFormatada = formatarDataInput(dataInicio);
     const dataFimFormatada = formatarDataInput(dataFim);
 
-    // Filtra estritamente os serviços dentro do período selecionado
+    // Filtra e ordena os dados estritamente dentro do período
     const servicosNoPeriodo = servicosFiltrados
       .filter((s) => s.data >= dataInicio && s.data <= dataFim)
       .sort((a, b) => b.data.localeCompare(a.data));
 
-    // Recalcula o faturamento total estrito do período
-    const totalPeriodoEstrito = servicosNoPeriodo.reduce(
-      (a, b) => a + Number(b.valor || 0),
-      0
-    );
+    const despesasNoPeriodo = despesas
+      .filter((d) => d.data >= dataInicio && d.data <= dataFim)
+      .sort((a, b) => b.data.localeCompare(a.data));
 
-    // Monta o texto com a formatação padrão do WhatsApp
+    // Recalcula os totais estritos do período filtrado
+    const totalS = servicosNoPeriodo.reduce((a, b) => a + Number(b.valor || 0), 0);
+    
+    const totalD = despesasNoPeriodo
+      .filter((d) => d.categoria === "Despesa" || (!d.categoria && d.tipo !== "Crédito"))
+      .reduce((a, b) => a + Number(b.valor || 0), 0);
+
+    const totalC = despesasNoPeriodo
+      .filter((d) => d.categoria === "Crédito" || d.tipo === "Crédito")
+      .reduce((a, b) => a + Number(b.valor || 0), 0);
+
+    const saldoLiquido = totalS - totalD + totalC;
+
+    // Cabeçalho da Mensagem
     let textoRelatorio = `*Dr Tosa* 🐾\n`;
     textoRelatorio += `*Relatório de Produção*\n\n`;
     textoRelatorio += `👤 *Parceiro:* ${funcionario.nome}\n`;
     textoRelatorio += `📅 *Período:* ${dataInicioFormatada} até ${dataFimFormatada}\n\n`;
-    textoRelatorio += `💰 *Faturamento Total:* R$ ${totalPeriodoEstrito.toFixed(2).replace(".", ",")}\n`;
+    
+    textoRelatorio += `💰 *Resumo Financeiro:*\n`;
+    textoRelatorio += `  • Faturamento: R$ ${formatarMoeda(totalS)}\n`;
+    textoRelatorio += `  • Despesas: R$ ${formatarMoeda(totalD)}\n`;
+    textoRelatorio += `  • Créditos: R$ ${formatarMoeda(totalC)}\n`;
+    textoRelatorio += `  *Saldo Líquido: R$ ${formatarMoeda(saldoLiquido)}*\n`;
     textoRelatorio += `────────────────────\n\n`;
-    textoRelatorio += `📋 *Serviços Realizados:*\n`;
 
-    let dataAnterior = "";
+    // Seção de Serviços Realizados com Valores
+    textoRelatorio += `📋 *Serviços Realizados:*\n`;
+    let dataAnteriorServico = "";
 
     servicosNoPeriodo.forEach((s) => {
       const dataFormatada = formatarDataInput(s.data);
-      const nomeDia = new Date(s.data + "T00:00:00").toLocaleDateString("pt-BR", { weekday: "long" });
-      const diaTitulo = nomeDia.charAt(0).toUpperCase() + nomeDia.slice(1);
-
-      if (dataFormatada !== dataAnterior) {
+      if (dataFormatada !== dataAnteriorServico) {
+        const nomeDia = new Date(s.data + "T00:00:00").toLocaleDateString("pt-BR", { weekday: "long" });
+        const diaTitulo = nomeDia.charAt(0).toUpperCase() + nomeDia.slice(1);
         textoRelatorio += `\n📌 *${diaTitulo} - ${dataFormatada}*\n`;
-        dataAnterior = dataFormatada;
+        dataAnteriorServico = dataFormatada;
       }
-
-      // Apenas Cliente e Tipo (Valor ocultado para o envio)
-      textoRelatorio += `• ${s.cliente} (${s.tipo})\n`;
+      textoRelatorio += `• ${s.cliente} (${s.tipo}) - R$ ${formatarMoeda(s.valor)}\n`;
     });
 
     if (servicosNoPeriodo.length === 0) {
       textoRelatorio += `_Nenhum serviço registrado neste período._\n`;
     }
 
-    // Tenta usar o compartilhamento nativo do celular
+    // Seção de Lançamentos de Despesas e Créditos Separados
+    textoRelatorio += `\n────────────────────\n`;
+    textoRelatorio += `🔻 *Despesas e Créditos:*\n`;
+
+    if (despesasNoPeriodo.length === 0) {
+      textoRelatorio += `\n_Nenhum lançamento registrado neste período._\n`;
+    } else {
+      despesasNoPeriodo.forEach((d) => {
+        const isCredito = d.categoria === "Crédito" || d.tipo === "Crédito";
+        const dataFormatada = formatarDataInput(d.data);
+        // Alterado de 🟢 para 🟠 atendendo à solicitação
+        const emoji = isCredito ? "🟠 [Crédito]" : "🔴 [Despesa]";
+        const desc = d.descricao ? ` - ${d.descricao}` : "";
+        
+        textoRelatorio += `\n${emoji} *${dataFormatada}*\n`;
+        textoRelatorio += `  ${d.tipo}${desc}: R$ ${formatarMoeda(d.valor)}\n`;
+      });
+    }
+
+    // Disparador de envio nativo ou Web
     if (navigator.share) {
       try {
         await navigator.share({
@@ -220,7 +257,6 @@ export default function FuncionarioCard({ funcionario }) {
         console.log("Compartilhamento cancelado ou falhou", err);
       }
     } else {
-      // Fallback para desktop: Abre o link direto com a mensagem preenchida
       const urlWhatsapp = `https://api.whatsapp.com/send?text=${encodeURIComponent(textoRelatorio)}`;
       window.open(urlWhatsapp, "_blank");
     }
@@ -266,22 +302,22 @@ export default function FuncionarioCard({ funcionario }) {
       {/* Inputs de Data */}
       <div className="flex gap-2 mb-3">
         <div>
-          <span className="text-gray-500">Data inicio</span>
+          <span className="text-gray-500 text-xs">Data início</span>
           <input
-          type="date"
-          value={dataInicio}
-          onChange={(e) => setDataInicio(e.target.value)}
-          className="bg-gray-800 border border-gray-700 p-2 w-full rounded"
-        />
+            type="date"
+            value={dataInicio}
+            onChange={(e) => setDataInicio(e.target.value)}
+            className="bg-gray-800 border border-gray-700 p-2 w-full rounded"
+          />
         </div>
         <div>
-          <span className="text-gray-500">Data fim</span>
+          <span className="text-gray-500 text-xs">Data fim</span>
           <input
-          type="date"
-          value={dataFim}
-          onChange={(e) => setDataFim(e.target.value)}
-          className="bg-gray-800 border border-gray-700 p-2 w-full rounded"
-        />
+            type="date"
+            value={dataFim}
+            onChange={(e) => setDataFim(e.target.value)}
+            className="bg-gray-800 border border-gray-700 p-2 w-full rounded"
+          />
         </div>
       </div>
 

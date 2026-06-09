@@ -193,7 +193,7 @@ export default function FuncionarioCard({ funcionario }) {
       .filter((d) => d.categoria === "Crédito" || d.tipo === "Crédito")
       .reduce((a, b) => a + Number(b.valor || 0), 0);
 
-    const saldoLiquido = totalS - totalD + totalC;
+    // const saldoLiquido = totalS - totalD + totalC;
 
     // Cabeçalho da Mensagem
     let textoRelatorio = `*Dr Tosa* 🐾\n`;
@@ -202,7 +202,7 @@ export default function FuncionarioCard({ funcionario }) {
     textoRelatorio += `📅 *Período:* ${dataInicioFormatada} até ${dataFimFormatada}\n\n`;
     
     textoRelatorio += `💰 *Resumo Financeiro:*\n`;
-    textoRelatorio += `  • Faturamento: R$ ${formatarMoeda(totalS)}\n`;
+    textoRelatorio += `  • *Faturamento: R$ ${formatarMoeda(totalS)}*\n`;
     textoRelatorio += `  • Despesas: R$ ${formatarMoeda(totalD)}\n`;
     textoRelatorio += `  • Créditos: R$ ${formatarMoeda(totalC)}\n`;
     // textoRelatorio += `  *Saldo Líquido: R$ ${formatarMoeda(saldoLiquido)}*\n`;

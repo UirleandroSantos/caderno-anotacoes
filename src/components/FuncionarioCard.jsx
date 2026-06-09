@@ -205,7 +205,7 @@ export default function FuncionarioCard({ funcionario }) {
     textoRelatorio += `  • Faturamento: R$ ${formatarMoeda(totalS)}\n`;
     textoRelatorio += `  • Despesas: R$ ${formatarMoeda(totalD)}\n`;
     textoRelatorio += `  • Créditos: R$ ${formatarMoeda(totalC)}\n`;
-    textoRelatorio += `  *Saldo Líquido: R$ ${formatarMoeda(saldoLiquido)}*\n`;
+    // textoRelatorio += `  *Saldo Líquido: R$ ${formatarMoeda(saldoLiquido)}*\n`;
     textoRelatorio += `────────────────────\n\n`;
 
     // Seção de Serviços Realizados com Valores

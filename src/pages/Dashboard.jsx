@@ -1,7 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "../services/supabase";
 import FuncionarioCard from "../components/FuncionarioCard";
-import { LogOut, Menu, RefreshCw, PawPrint   } from "lucide-react";
+import { 
+  LogOut, 
+  Menu, 
+  RefreshCw, 
+  PawPrint, 
+  Search, 
+  PlusCircle, 
+  Briefcase, 
+  X, 
+  Calendar, 
+  DollarSign, 
+  TrendingUp, 
+  TrendingDown, 
+  CreditCard,
+  UserPlus,
+  ArrowLeft
+} from "lucide-react";
 import ModalDespesaAdmin from "../components/ModalDespesaAdmin";
 
 export default function Dashboard({ user }) {
@@ -35,7 +51,7 @@ export default function Dashboard({ user }) {
   const [resultadosBusca, setResultadosBusca] = useState([]);
 
   const totalBusca = resultadosBusca.reduce(
-  (acc, item) => acc + Number(item.valor || 0),
+    (acc, item) => acc + Number(item.valor || 0),
     0
   );
 
@@ -48,16 +64,16 @@ export default function Dashboard({ user }) {
   }, [dataInicio, dataFim]);
 
   function atualizarPagina() {
-  window.location.reload();
-}
+    window.location.reload();
+  }
 
   useEffect(() => {
-  if (busca) {
-    buscarServicos();
-  } else {
-    setResultadosBusca([]);
-  }
-}, [busca, dataInicio, dataFim]);
+    if (busca) {
+      buscarServicos();
+    } else {
+      setResultadosBusca([]);
+    }
+  }, [busca, dataInicio, dataFim]);
 
   async function carregarFuncionarios() {
     const { data } = await supabase
@@ -118,33 +134,33 @@ export default function Dashboard({ user }) {
   }
 
   // 🔎 BUSCAR SERVIÇOS POR CLIENTE/PET
-async function buscarServicos() {
-  const { data: funcs } = await supabase
-    .from("funcionarios")
-    .select("id, nome")
-    .eq("user_id", user.id);
+  async function buscarServicos() {
+    const { data: funcs } = await supabase
+      .from("funcionarios")
+      .select("id, nome")
+      .eq("user_id", user.id);
 
-  const idsFuncionarios = (funcs || []).map((f) => f.id);
+    const idsFuncionarios = (funcs || []).map((f) => f.id);
 
-  const { data: servicos } = await supabase
-    .from("servicos")
-    .select("*")
-    .in("funcionario_id", idsFuncionarios)
-    .ilike("cliente", `%${busca}%`)
-    .gte("data", dataInicio)
-    .lte("data", dataFim)
-    .order("data", { ascending: false });
+    const { data: servicos } = await supabase
+      .from("servicos")
+      .select("*")
+      .in("funcionario_id", idsFuncionarios)
+      .ilike("cliente", `%${busca}%`)
+      .gte("data", dataInicio)
+      .lte("data", dataFim)
+      .order("data", { ascending: false });
 
-  const resultadoComFuncionario = (servicos || []).map((s) => {
-    const func = funcs.find((f) => f.id === s.funcionario_id);
-    return {
-      ...s,
-      funcionario_nome: func?.nome || "Desconhecido",
-    };
-  });
+    const resultadoComFuncionario = (servicos || []).map((s) => {
+      const func = funcs.find((f) => f.id === s.funcionario_id);
+      return {
+        ...s,
+        funcionario_nome: func?.nome || "Desconhecido",
+      };
+    });
 
-  setResultadosBusca(resultadoComFuncionario);
-}
+    setResultadosBusca(resultadoComFuncionario);
+  }
 
   async function criarFuncionario() {
     if (!nome) return alert("Digite um nome");
@@ -164,30 +180,30 @@ async function buscarServicos() {
   }
 
   async function salvarDespesaAdmin(dados) {
-  await supabase.from("despesas_administrativas").insert([
-    {
-      user_id: user.id,
-      ...dados,
-    },
-  ]);
+    await supabase.from("despesas_administrativas").insert([
+      {
+        user_id: user.id,
+        ...dados,
+      },
+    ]);
 
-  setModalDespesaAdmin(false);
-}
-
-async function buscarDespesasAdmin() {
-  const { data, error } = await supabase
-    .from("despesas_administrativas")
-    .select("*")
-    .gte("data", dataInicio)
-    .lte("data", dataFim)
-    .order("data", { ascending: false });
-
-  if (error) {
-    console.error("Erro ao buscar despesas admin:", error);
-  } else {
-    setDespesasAdmin(data);
+    setModalDespesaAdmin(false);
   }
-}
+
+  async function buscarDespesasAdmin() {
+    const { data, error } = await supabase
+      .from("despesas_administrativas")
+      .select("*")
+      .gte("data", dataInicio)
+      .lte("data", dataFim)
+      .order("data", { ascending: false });
+
+    if (error) {
+      console.error("Erro ao buscar despesas admin:", error);
+    } else {
+      setDespesasAdmin(data);
+    }
+  }
 
   function logout() {
     localStorage.removeItem("usuario");
@@ -202,226 +218,307 @@ async function buscarDespesasAdmin() {
   }, []);
 
   useEffect(() => {
-  buscarDespesasAdmin();
-}, [dataInicio, dataFim]);
+    buscarDespesasAdmin();
+  }, [dataInicio, dataFim]);
 
   const totalDespesasAdmin = despesasAdmin.reduce(
-  (acc, d) => acc + Number(d.valor),
-  0
-);
-
-// const lucro = totalServicos - totalDespesas - totalDespesasAdmin;
+    (acc, d) => acc + Number(d.valor),
+    0
+  );
 
   return (
     <div
       ref={containerRef}
-      className="flex overflow-x-auto w-screen h-screen snap-x snap-mandatory scroll-smooth bg-gray-900 text-white"
+      className="flex overflow-x-auto w-screen h-screen snap-x snap-mandatory scroll-smooth bg-slate-950 text-slate-100 antialiased"
       style={{ touchAction: "pan-x" }}
     >
-      {/* 🔄 BOTÃO FLUTUANTE DE ATUALIZAR */}
-    {/* <button
-      onClick={atualizarPagina}
-      className="fixed bottom-22 right-6 bg-green-500 z-[9999] hover:bg-green-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg"
-    >
-      <RefreshCw size={20} />
-    </button> */}
       {/* DASHBOARD */}
-      <div className="min-w-full h-full snap-start flex flex-col relative">
+      <div className="min-w-full h-full snap-start flex flex-col relative overflow-y-auto pb-8">
 
-        {/* MENU */}
+        {/* OVERLAY & DRAWER DO MENU */}
         {menuAberto && (
-            <div className="absolute top-0 left-0 w-64 h-full bg-gray-800 p-4 z-50 shadow-lg">
+          <div className="fixed inset-0 z-50 flex">
+            {/* Background Blur Overlay */}
+            <div 
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+              onClick={() => setMenuAberto(false)}
+            />
 
-            {modoMenu === "lista" && (
-              <>
-                <h2 className="text-lg font-bold mb-4">Menu</h2>
+            {/* Content Drawer */}
+            <div className="relative w-72 max-w-[80vw] h-full bg-slate-900 border-r border-slate-800 p-5 shadow-2xl flex flex-col justify-between z-10">
+              {modoMenu === "lista" && (
+                <div>
+                  <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                    <h2 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+                      <Menu size={18} className="text-emerald-400" />
+                      Navegação
+                    </h2>
+                    <button 
+                      onClick={() => setMenuAberto(false)} 
+                      className="p-1 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
 
-                <button
-                  onClick={() => setModoMenu("criar")}
-                  className="w-full text-left p-2 rounded hover:bg-gray-700"
-                >
-                  ➕ Cadastrar Funcionário
-                </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => setModoMenu("criar")}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-200 hover:text-white transition group text-left"
+                    >
+                      <UserPlus size={18} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+                      <span className="text-sm font-medium">Cadastrar Funcionário</span>
+                    </button>
 
-                <button
-                  onClick={() => setModalDespesaAdmin(true)}
-                  className="w-full text-left p-2 rounded hover:bg-gray-700"
-                >
-                  💼 cadastrar Despesa
-                </button>
+                    <button
+                      onClick={() => setModalDespesaAdmin(true)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl bg-slate-800/60 hover:bg-slate-800 border border-slate-700/50 text-slate-200 hover:text-white transition group text-left"
+                    >
+                      <Briefcase size={18} className="text-amber-400 group-hover:scale-110 transition-transform" />
+                      <span className="text-sm font-medium">Cadastrar Despesa</span>
+                    </button>
+                  </div>
+                </div>
+              )}
 
-                <button
-                  onClick={() => setMenuAberto(false)}
-                  className="mt-4 text-gray-400 text-sm"
+              {modoMenu === "criar" && (
+                <div className="flex flex-col h-full justify-between">
+                  <div>
+                    <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-800">
+                      <h2 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+                        <UserPlus size={18} className="text-emerald-400" />
+                        Novo Funcionário
+                      </h2>
+                      <button 
+                        onClick={() => setModoMenu("lista")} 
+                        className="p-1 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition"
+                      >
+                        <ArrowLeft size={20} />
+                      </button>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs text-slate-400 mb-1 block">Nome Completo</label>
+                        <input
+                          placeholder="Ex: João Silva"
+                          className="bg-slate-950 border border-slate-800 focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 p-2.5 rounded-xl w-full text-slate-100 placeholder-slate-500 outline-none transition text-sm"
+                          value={nome}
+                          onChange={(e) => setNome(e.target.value)}
+                        />
+                      </div>
+
+                      <button
+                        onClick={criarFuncionario}
+                        className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 font-medium text-white rounded-xl transition shadow-lg shadow-emerald-950/20 text-sm active:scale-[0.98]"
+                      >
+                        Salvar Funcionário
+                      </button>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setModoMenu("lista")}
+                    className="flex items-center justify-center gap-2 text-slate-400 hover:text-slate-200 text-sm py-2 transition"
                   >
-                  Fechar
-                </button>
-              </>
-            )}
+                    <ArrowLeft size={16} /> Voltar ao Menu
+                  </button>
+                </div>
+              )}
 
-            {modoMenu === "criar" && (
-                <>
-                <h2 className="text-lg font-bold mb-4">
-                  Novo Funcionário
-                </h2>
-
-                <input
-                  placeholder="Nome"
-                  className="bg-gray-700 p-2 w-full rounded mb-3"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                />
-
-                <button
-                  onClick={criarFuncionario}
-                  className="bg-blue-600 w-full p-2 rounded mb-2"
+              {modoMenu === "lista" && (
+                <div className="pt-4 border-t border-slate-800">
+                  <button
+                    onClick={() => setMenuAberto(false)}
+                    className="w-full text-center py-2 rounded-lg text-slate-400 hover:text-slate-200 text-xs font-medium transition"
                   >
-                  Salvar
-                </button>
-
-                <button
-                  onClick={() => setModoMenu("lista")}
-                  className="text-gray-400 text-sm"
-                  >
-                  ← Voltar
-                </button>
-              </>
-            )}
+                    Fechar Menu
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
-        {/* TOPO */}
-        <div className="flex justify-between items-center p-4 bg-gray-800 shadow">
+        {/* TOPO / HEADER */}
+        <header className="flex justify-between items-center px-5 py-4 bg-slate-900/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-20">
           <button
             onClick={() => {
-                setMenuAberto(true);
-                setModoMenu("lista");
+              setMenuAberto(true);
+              setModoMenu("lista");
             }}
-            className="text-gray-300"
+            className="p-2 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 transition border border-slate-700/50 active:scale-95"
+            aria-label="Abrir Menu"
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
+
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <PawPrint size={18} />
+            </div>
+            <span className="font-semibold text-sm tracking-wide text-slate-200">Painel Admin</span>
+          </div>
+
           <button
             onClick={logout}
-            className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
-            >
-            <LogOut size={16} />
+            className="p-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition active:scale-95"
+            aria-label="Sair"
+          >
+            <LogOut size={18} />
           </button>
+        </header>
+
+        {/* BOAS VINDAS / TÍTULO */}
+        <div className="px-5 mt-5 mb-2 text-center">
+          <span className="text-xs font-medium uppercase tracking-wider text-emerald-400 bg-emerald-950/40 border border-emerald-800/40 px-3 py-1 rounded-full inline-block mb-2">
+            Gestão Financeira
+          </span>
+          <h2 className="text-2xl font-bold text-slate-100 tracking-tight">Olá, José Aldenir</h2>
         </div>
-              <h2 className="text-white-800 font-bold text-center text-xl mt-5">Olá: José Aldenir</h2>
-              <strong className="text-white-800 font-bold text-center mt-3">Gestão financeira</strong>
 
-        <div className="w-full px-4">
+        <div className="w-full px-5 max-w-xl mx-auto space-y-4">
 
-          {/* FILTRO */}
-          <div className="flex gap-2 my-4">
-            <input
-              type="date"
-              value={dataInicio}
-              onChange={(e) => setDataInicio(e.target.value)}
-              className="bg-gray-800 border border-gray-700 p-2 rounded w-full"
-            />
-
-            <input
-              type="date"
-              value={dataFim}
-              onChange={(e) => setDataFim(e.target.value)}
-              className="bg-gray-800 border border-gray-700 p-2 rounded w-full"
-            />
-          </div>
-
-          {/* CARDS MOBILE */}
-          <div className="flex flex-col gap-3">
-            <div className="bg-gray-800 p-4 rounded">
-              <p className="text-gray-400 text-sm">Faturamento total</p>
-              <p className="text-green-400 text-xl font-bold">
-                R$ {totalServicos.toFixed(2).replace(".",",")}
-              </p>
+          {/* FILTRO DE DATAS */}
+          <div className="bg-slate-900/60 p-3 rounded-2xl border border-slate-800/80 flex gap-2 items-center">
+            <div className="relative flex-1">
+              <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="date"
+                value={dataInicio}
+                onChange={(e) => setDataInicio(e.target.value)}
+                className="bg-slate-950 border border-slate-800 pl-8 pr-2 py-2 rounded-xl w-full text-xs text-slate-200 outline-none focus:border-emerald-500/50 transition"
+              />
             </div>
 
+            <span className="text-slate-500 text-xs font-bold">até</span>
+
+            <div className="relative flex-1">
+              <Calendar size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="date"
+                value={dataFim}
+                onChange={(e) => setDataFim(e.target.value)}
+                className="bg-slate-950 border border-slate-800 pl-8 pr-2 py-2 rounded-xl w-full text-xs text-slate-200 outline-none focus:border-emerald-500/50 transition"
+              />
+            </div>
+          </div>
+
+          {/* CARDS RESUMO FINANCEIRO */}
+          <div className="space-y-3">
+            {/* Card Faturamento Destaque */}
+            <div className="bg-gradient-to-br from-slate-900 via-slate-900 to-emerald-950/30 p-4 rounded-2xl border border-emerald-500/20 shadow-lg relative overflow-hidden">
+              <div className="flex justify-between items-start">
+                <div>
+                  <p className="text-slate-400 text-xs font-medium mb-1">Faturamento Total</p>
+                  <p className="text-emerald-400 text-2xl font-extrabold tracking-tight font-mono">
+                    R$ {totalServicos.toFixed(2).replace(".", ",")}
+                  </p>
+                </div>
+                <div className="p-2.5 bg-emerald-500/10 rounded-xl border border-emerald-500/20 text-emerald-400">
+                  <TrendingUp size={20} />
+                </div>
+              </div>
+            </div>
+
+            {/* Grid 2 Colunas: Despesas e Créditos */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-gray-800 p-4 rounded">
-              <p className="text-gray-400 text-sm">Despesas Equipe</p>
-              <p className="text-red-400 text-xl font-bold">
-                R$ {totalDespesas.toFixed(2).replace(".",",")}
-              </p>
+              <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-slate-400 text-xs font-medium">Despesas Equipe</p>
+                  <TrendingDown size={14} className="text-rose-400" />
+                </div>
+                <p className="text-rose-400 text-lg font-bold font-mono">
+                  R$ {totalDespesas.toFixed(2).replace(".", ",")}
+                </p>
+              </div>
+
+              <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 flex flex-col justify-between">
+                <div className="flex justify-between items-center mb-2">
+                  <p className="text-slate-400 text-xs font-medium">Créditos Equipe</p>
+                  <CreditCard size={14} className="text-sky-400" />
+                </div>
+                <p className="text-sky-400 text-lg font-bold font-mono">
+                  R$ {totalCreditos.toFixed(2).replace(".", ",")}
+                </p>
+              </div>
             </div>
 
-            <div className="bg-gray-800 p-4 rounded">
-              <p className="text-gray-400 text-sm">Créditos Equipe</p>
-              <p className="text-blue-400 text-xl font-bold">
-                R$ {totalCreditos.toFixed(2).replace(".",",")}
-              </p>
+            {/* Despesas Administrativas */}
+            <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800/80 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-rose-500/10 rounded-lg text-rose-400">
+                  <Briefcase size={16} />
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400">Despesas Administrativas</p>
+                  <p className="text-base font-bold text-rose-400 font-mono">
+                    R$ {totalDespesasAdmin.toFixed(2).replace(".", ",")}
+                  </p>
+                </div>
+              </div>
             </div>
-            </div>
-
-            <div className="bg-gray-800 p-3 rounded border border-gray-700">
-              <p className="text-sm text-gray-400">Despesas Administrativas</p>
-              <p className="text-lg font-bold text-red-400">
-                R$ {totalDespesasAdmin.toFixed(2).replace(".",",")}
-              </p>
-            </div>
-
-            {/* <div className="bg-gray-800 p-4 rounded">
-              <p className="text-gray-400 text-sm">Lucro</p>
-              <p className="text-blue-400 text-xl font-bold">
-                R$ {lucro.toFixed(2).replace(".",",")}
-              </p>
-            </div> */}
           </div>
 
-          {/* 🔎 BUSCA */}
-          <input
-            placeholder="Buscar cliente/pet..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            className="bg-gray-800 border border-gray-700 p-2 rounded w-full mt-4"
-          />
+          {/* 🔎 CAMPO DE BUSCA */}
+          <div className="relative pt-2">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input
+              placeholder="Buscar cliente ou pet..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="bg-slate-900/90 border border-slate-800 focus:border-slate-700 pl-10 pr-4 py-3 rounded-2xl w-full text-sm text-slate-100 placeholder-slate-500 outline-none transition shadow-sm"
+            />
+          </div>
 
           {/* RESULTADO DA BUSCA */}
-{busca && (
-  <div className="mt-3">
+          {busca && (
+            <div className="space-y-2 pt-1 animate-fadeIn">
+              {/* TOTAL DA BUSCA */}
+              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                <span className="text-slate-400 font-medium">Total localizado na busca</span>
+                <span className="text-emerald-400 font-bold text-sm font-mono">
+                  R$ {totalBusca.toFixed(2).replace(".", ",")}
+                </span>
+              </div>
 
-    {/* ✅ TOTAL DA BUSCA */}
-    <div className="bg-gray-800 p-2 rounded mb-2 text-sm border border-gray-700 flex justify-between">
-      <span>Total da busca</span>
-      <span className="text-green-400 font-bold">
-        R$ {totalBusca.toFixed(2).replace(".", ",")}
-      </span>
-    </div>
+              {/* LISTA DE RESULTADOS */}
+              <div className="max-h-[280px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                {resultadosBusca.map((s) => (
+                  <div
+                    key={s.id}
+                    className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-1 hover:border-slate-700 transition"
+                  >
+                    <div className="flex justify-between items-start">
+                      <span className="font-semibold text-slate-100 text-sm">{s.cliente}</span>
+                      <span className="text-emerald-400 font-bold font-mono text-sm">
+                        R$ {Number(s.valor).toFixed(2).replace(".", ",")}
+                      </span>
+                    </div>
 
-    {/* 🔎 LISTA DE RESULTADOS */}
-    <div className="max-h-[300px] overflow-y-auto">
-      {resultadosBusca.map((s) => (
-        <div
-          key={s.id}
-          className="bg-gray-800 p-3 rounded mb-2 text-sm border border-gray-700"
-        >
-          <div className="font-bold">{s.cliente}</div>
+                    <div className="text-slate-400 text-xs">{s.tipo}</div>
 
-          <div className="text-gray-400">{s.tipo}</div>
+                    <div className="flex justify-between items-center pt-1 border-t border-slate-800/50 mt-2 text-[11px]">
+                      <span className="text-slate-500">
+                        {new Date(s.data + "T00:00:00").toLocaleDateString()}
+                      </span>
+                      <span className="text-sky-400 font-medium bg-sky-950/40 px-2 py-0.5 rounded border border-sky-800/30">
+                        {s.funcionario_nome}
+                      </span>
+                    </div>
+                  </div>
+                ))}
 
-          <div className="text-green-400">
-            R$ {Number(s.valor).toFixed(2).replace(".", ",")}
-          </div>
-
-          <div className="text-xs text-gray-500">
-            {new Date(s.data + "T00:00:00").toLocaleDateString()}
-          </div>
-
-          <div className="text-xs text-blue-400 mt-1">
-            Funcionário: {s.funcionario_nome}
-          </div>
-        </div>
-      ))}
-    </div>
-
-  </div>
-)}
+                {resultadosBusca.length === 0 && (
+                  <p className="text-center py-6 text-slate-500 text-xs">Nenhum serviço encontrado.</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* CARDS */}
+      {/* CARDS DE FUNCIONÁRIOS (SLIDE LATERAL) */}
       <div className="min-w-full h-full snap-start flex">
         <div className="flex w-full h-full">
           {funcionarios.map((f) => (
@@ -431,6 +528,7 @@ async function buscarDespesasAdmin() {
           ))}
         </div>
       </div>
+
       {modalDespesaAdmin && (
         <ModalDespesaAdmin
           onClose={() => setModalDespesaAdmin(false)}
@@ -438,6 +536,5 @@ async function buscarDespesasAdmin() {
         />
       )}
     </div>
-    
   );
 }

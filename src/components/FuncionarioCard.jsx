@@ -19,6 +19,9 @@ export default function FuncionarioCard({ funcionario }) {
 
   const [mostrarDespesas, setMostrarDespesas] = useState(false);
 
+  // Auxiliar para formatação financeira rápida
+  const formatarMoeda = (valor) => Number(valor || 0).toFixed(2).replace(".", ",");
+
   const hojeBase = new Date();
   const diaAtual = hojeBase.getDate();
 
@@ -30,7 +33,7 @@ export default function FuncionarioCard({ funcionario }) {
   const fimQuinzena =
     diaAtual <= 15
       ? new Date(hojeBase.getFullYear(), hojeBase.getMonth(), 15)
-      : hojeBase;
+      : new Date(hojeBase.getFullYear(), hojeBase.getMonth() + 1, 0); // Vai até o último dia do mês
 
   const [dataInicio, setDataInicio] = useState(
     inicioQuinzena.toLocaleDateString("sv-SE")
@@ -52,9 +55,10 @@ export default function FuncionarioCard({ funcionario }) {
   function aplicarSegundaQuinzena() {
     const hoje = new Date();
     const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 16);
+    const fim = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
 
     setDataInicio(inicio.toLocaleDateString("sv-SE"));
-    setDataFim(hoje.toLocaleDateString("sv-SE"));
+    setDataFim(fim.toLocaleDateString("sv-SE"));
   }
 
   const [filtroTipo, setFiltroTipo] = useState("");
@@ -158,7 +162,6 @@ export default function FuncionarioCard({ funcionario }) {
     carregarDados();
   }
 
-  // Função para compartilhar o relatório diretamente formatado para texto/WhatsApp
   async function compartilharRelatorio() {
     const formatarDataInput = (dataString) => {
       if (!dataString) return "";
@@ -166,14 +169,9 @@ export default function FuncionarioCard({ funcionario }) {
       return `${dia}/${mes}/${ano}`;
     };
 
-    const formatarMoeda = (valor) => {
-      return Number(valor).toFixed(2).replace(".", ",");
-    };
-
     const dataInicioFormatada = formatarDataInput(dataInicio);
     const dataFimFormatada = formatarDataInput(dataFim);
 
-    // Filtra e ordena os dados estritamente dentro do período
     const servicosNoPeriodo = servicosFiltrados
       .filter((s) => s.data >= dataInicio && s.data <= dataFim)
       .sort((a, b) => b.data.localeCompare(a.data));
@@ -182,7 +180,6 @@ export default function FuncionarioCard({ funcionario }) {
       .filter((d) => d.data >= dataInicio && d.data <= dataFim)
       .sort((a, b) => b.data.localeCompare(a.data));
 
-    // Recalcula os totais estritos do período filtrado
     const totalS = servicosNoPeriodo.reduce((a, b) => a + Number(b.valor || 0), 0);
     
     const totalD = despesasNoPeriodo
@@ -193,9 +190,6 @@ export default function FuncionarioCard({ funcionario }) {
       .filter((d) => d.categoria === "Crédito" || d.tipo === "Crédito")
       .reduce((a, b) => a + Number(b.valor || 0), 0);
 
-    // const saldoLiquido = totalS - totalD + totalC;
-
-    // Cabeçalho da Mensagem
     let textoRelatorio = `*Dr Tosa* 🐾\n`;
     textoRelatorio += `*Relatório de Produção*\n\n`;
     textoRelatorio += `👤 *Parceiro:* ${funcionario.nome}\n`;
@@ -205,10 +199,8 @@ export default function FuncionarioCard({ funcionario }) {
     textoRelatorio += `  • *Faturamento: R$ ${formatarMoeda(totalS)}*\n`;
     textoRelatorio += `  • Despesas: R$ ${formatarMoeda(totalD)}\n`;
     textoRelatorio += `  • Créditos: R$ ${formatarMoeda(totalC)}\n`;
-    // textoRelatorio += `  *Saldo Líquido: R$ ${formatarMoeda(saldoLiquido)}*\n`;
     textoRelatorio += `────────────────────\n\n`;
 
-    // Seção de Serviços Realizados com Valores
     textoRelatorio += `📋 *Serviços Realizados:*\n`;
     let dataAnteriorServico = "";
 
@@ -227,7 +219,6 @@ export default function FuncionarioCard({ funcionario }) {
       textoRelatorio += `_Nenhum serviço registrado neste período._\n`;
     }
 
-    // Seção de Lançamentos de Despesas e Créditos Separados
     textoRelatorio += `\n────────────────────\n`;
     textoRelatorio += `🔻 *Despesas e Créditos:*\n`;
 
@@ -237,7 +228,6 @@ export default function FuncionarioCard({ funcionario }) {
       despesasNoPeriodo.forEach((d) => {
         const isCredito = d.categoria === "Crédito" || d.tipo === "Crédito";
         const dataFormatada = formatarDataInput(d.data);
-        // Alterado de 🟢 para 🟠 atendendo à solicitação
         const emoji = isCredito ? "🟠 [Crédito]" : "🔴 [Despesa]";
         const desc = d.descricao ? ` - ${d.descricao}` : "";
         
@@ -246,7 +236,6 @@ export default function FuncionarioCard({ funcionario }) {
       });
     }
 
-    // Disparador de envio nativo ou Web
     if (navigator.share) {
       try {
         await navigator.share({
@@ -265,7 +254,7 @@ export default function FuncionarioCard({ funcionario }) {
   return (
     <div className="min-w-full h-full bg-gray-900 text-white flex flex-col p-4">
       
-      {/* Cabeçalho da Tela */}
+      {/* Cabeçalho */}
       <div className="mb-3 flex justify-between items-center">
         <div>
           <h2 className="text-[30px] font-bold">{funcionario.nome}</h2>
@@ -286,14 +275,14 @@ export default function FuncionarioCard({ funcionario }) {
       <div className="flex gap-2 mb-2">
         <button
           onClick={aplicarPrimeiraQuinzena}
-          className="bg-purple-600 hover:bg-purple-700 flex-1 p-2 rounded text-sm"
+          className="bg-purple-600 hover:bg-purple-700 flex-1 p-2 rounded text-sm transition-colors"
         >
           1° Quinzena
         </button>
 
         <button
           onClick={aplicarSegundaQuinzena}
-          className="bg-purple-800 hover:bg-purple-900 flex-1 p-2 rounded text-sm"
+          className="bg-purple-800 hover:bg-purple-900 flex-1 p-2 rounded text-sm transition-colors"
         >
           2° Quinzena
         </button>
@@ -301,58 +290,58 @@ export default function FuncionarioCard({ funcionario }) {
 
       {/* Inputs de Data */}
       <div className="flex gap-2 mb-3">
-        <div>
+        <div className="flex-1">
           <span className="text-gray-500 text-xs">Data início</span>
           <input
             type="date"
             value={dataInicio}
             onChange={(e) => setDataInicio(e.target.value)}
-            className="bg-gray-800 border border-gray-700 p-2 w-full rounded"
+            className="bg-gray-800 border border-gray-700 p-2 w-full rounded text-sm"
           />
         </div>
-        <div>
+        <div className="flex-1">
           <span className="text-gray-500 text-xs">Data fim</span>
           <input
             type="date"
             value={dataFim}
             onChange={(e) => setDataFim(e.target.value)}
-            className="bg-gray-800 border border-gray-700 p-2 w-full rounded"
+            className="bg-gray-800 border border-gray-700 p-2 w-full rounded text-sm"
           />
         </div>
       </div>
 
-      {/* Cards de Resumo Financeiro */}
+      {/* Resumo Financeiro */}
       <div className="grid grid-cols-3 gap-2 mb-3">
         <div className="bg-gray-800 p-3 rounded">
           <p className="text-gray-400 text-sm">Faturamento</p>
           <p className="text-green-400 font-bold">
-            R$ {totalServicos.toFixed(2).replace(".", ",")}
+            R$ {formatarMoeda(totalServicos)}
           </p>
         </div>
 
         <div className="bg-gray-800 p-3 rounded">
           <p className="text-gray-400 text-sm">Despesas</p>
           <p className="text-red-400 font-bold">
-            R$ {totalDespesas.toFixed(2).replace(".", ",")}
+            R$ {formatarMoeda(totalDespesas)}
           </p>
         </div>
 
         <div className="bg-gray-800 p-3 rounded">
           <p className="text-gray-400 text-sm">Créditos</p>
           <p className="text-orange-500 font-bold">
-            R$ {totalCreditos.toFixed(2).replace(".", ",")}
+            R$ {formatarMoeda(totalCreditos)}
           </p>
         </div>
       </div>
 
-      {/* Botões de Ações Rápidas */}
+      {/* Ações Rápidas */}
       <div className="flex gap-2 mb-3">
         <button
           onClick={() => {
             setEditarServico(null);
             setModalServico(true);
           }}
-          className="bg-green-600 hover:bg-green-700 flex-1 p-2 rounded flex items-center justify-center gap-2"
+          className="bg-green-600 hover:bg-green-700 flex-1 p-2 rounded flex items-center justify-center gap-2 transition-colors text-sm"
         >
           <Wrench size={16} />
           Serviço
@@ -363,7 +352,7 @@ export default function FuncionarioCard({ funcionario }) {
             setEditarDespesa(null);
             setModalDespesa(true);
           }}
-          className="bg-red-600 hover:bg-red-700 flex-1 p-2 rounded flex items-center justify-center gap-2"
+          className="bg-red-600 hover:bg-red-700 flex-1 p-2 rounded flex items-center justify-center gap-2 transition-colors text-sm"
         >
           <CreditCard size={16} />
           Despesa
@@ -371,21 +360,21 @@ export default function FuncionarioCard({ funcionario }) {
 
         <button
           onClick={() => setModalCredito(true)}
-          className="bg-orange-500 hover:bg-blue-700 flex-1 p-2 rounded flex items-center justify-center gap-2"
+          className="bg-orange-500 hover:bg-orange-600 flex-1 p-2 rounded flex items-center justify-center gap-2 transition-colors text-sm"
         >
           <HandCoins size={16} />
           Crédito
         </button>
       </div>
 
-      {/* Seletor de Tipo de Filtro */}
+      {/* Seletor de Tipo */}
       <div className="flex items-center justify-between w-full gap-2 mb-1">
-        <p>Total de serviços: {quantidadeServicos}</p>
+        <p className="text-sm">Total de serviços: {quantidadeServicos}</p>
 
         <select
           value={filtroTipo}
           onChange={(e) => setFiltroTipo(e.target.value)}
-          className="bg-gray-800 border border-gray-700 text-xs p-1 rounded w-[70px]"
+          className="bg-gray-800 border border-gray-700 text-xs p-1 rounded w-[90px]"
         >
           <option value="">Todos</option>
           {[...new Set(servicos.map((s) => s.tipo))].map((tipo) => (
@@ -418,23 +407,20 @@ export default function FuncionarioCard({ funcionario }) {
 
           return (
             <div key={s.id}>
-              
-              {/* TÍTULO DO DIA */}
               {mudouDia && (
                 <div className="text-xs text-gray-500 mt-1 mb-1 px-1">
                   {nomeDiaFormatado}
                 </div>
               )}
 
-              {/* CARD DE SERVIÇO */}
               <div className="bg-gray-800 p-3 rounded mb-2 text-sm border border-gray-700 flex justify-between items-center">
                 <div>
                   <div className="font-bold">{s.cliente}</div>
                   <div className="text-gray-400">{s.tipo}</div>
-                  <div className="text-green-400">
-                    R$ {s.valor.toFixed(2).replace(".", ",")}
+                  <div className="text-green-400 font-semibold">
+                    R$ {formatarMoeda(s.valor)}
                   </div>
-                  <div className="text-xs text-gray-500 flex gap-1 items-center">
+                  <div className="text-xs text-gray-500 flex gap-1 items-center mt-1">
                     {dataAtual.toLocaleDateString()}
                     <CalendarCheck size={14} />
                   </div>
@@ -446,14 +432,14 @@ export default function FuncionarioCard({ funcionario }) {
                       setEditarServico(s);
                       setModalServico(true);
                     }}
-                    className="bg-blue-600 px-2 py-1 rounded w-fit"
+                    className="bg-blue-600 hover:bg-blue-700 p-1.5 rounded transition-colors"
                   >
                     <Pencil size={16} />
                   </button>
 
                   <button
                     onClick={() => excluirServico(s.id)}
-                    className="bg-red-600 px-2 py-1 rounded w-fit"
+                    className="bg-red-600 hover:bg-red-700 p-1.5 rounded transition-colors"
                   >
                     <Trash size={16} />
                   </button>
@@ -467,7 +453,7 @@ export default function FuncionarioCard({ funcionario }) {
       {/* Sanfona de Despesas e Créditos */}
       <div
         onClick={() => setMostrarDespesas(!mostrarDespesas)}
-        className="mt-2 bg-gray-800 border border-gray-700 rounded-lg p-3 cursor-pointer hover:bg-gray-700 transition-all duration-200"
+        className="mt-2 bg-gray-800 border border-gray-700 rounded-lg p-3 cursor-pointer hover:bg-gray-750 transition-all duration-200"
       >
         <div className="flex justify-between items-center">
           <div>
@@ -481,10 +467,10 @@ export default function FuncionarioCard({ funcionario }) {
 
           <div className="text-right">
             <p className="text-red-400 text-sm font-bold">
-              <span className="text-gray-400">Despesas - </span> R$ {totalDespesas.toFixed(2).replace(".", ",")}
+              <span className="text-gray-400 font-normal">Despesas: </span> R$ {formatarMoeda(totalDespesas)}
             </p>
             <p className="text-orange-500 text-sm font-bold">
-              <span className="text-gray-400">Crédito - </span> R$ {totalCreditos.toFixed(2).replace(".", ",")}
+              <span className="text-gray-400 font-normal">Créditos: </span> R$ {formatarMoeda(totalCreditos)}
             </p>
           </div>
         </div>
@@ -496,7 +482,7 @@ export default function FuncionarioCard({ funcionario }) {
           mostrarDespesas ? "max-h-screen mt-2" : "max-h-0"
         }`}
       >
-        <div className="max-h-[calc(100vh-420px)] overflow-y-auto pb-20">
+        <div className="max-h-[300px] overflow-y-auto pb-4">
           {(despesas || []).map((d) => {
             const isCredito = d.categoria === "Crédito" || d.tipo === "Crédito";
 
@@ -513,27 +499,32 @@ export default function FuncionarioCard({ funcionario }) {
                     {d.tipo}
                     {d.descricao && ` - ${d.descricao}`}
                   </div>
-                  <div className="text-red-400">
-                    R$ {Number(d.valor || 0).toFixed(2).replace(".", ",")}
+                  {/* Aplica a cor correta de acordo com a categoria */}
+                  <div className={isCredito ? "text-orange-400 font-semibold" : "text-red-400 font-semibold"}>
+                    R$ {formatarMoeda(d.valor)}
                   </div>
                 </div>
 
                 <div className="flex gap-2">
                   {!isCredito && (
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setEditarDespesa(d);
                         setModalDespesa(true);
                       }}
-                      className="text-xs bg-blue-600 px-2 py-1 rounded z-[9999]"
+                      className="bg-blue-600 hover:bg-blue-700 p-1.5 rounded transition-colors"
                     >
                       <Pencil size={16} />
                     </button>
                   )}
 
                   <button
-                    onClick={() => excluirDespesa(d.id)}
-                    className="text-xs bg-red-600 px-2 py-1 rounded z-[9999]"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      excluirDespesa(d.id);
+                    }}
+                    className="bg-red-600 hover:bg-red-700 p-1.5 rounded transition-colors"
                   >
                     <Trash size={16} />
                   </button>

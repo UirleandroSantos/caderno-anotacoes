@@ -4,21 +4,27 @@ import FuncionarioCard from "../components/FuncionarioCard";
 import { 
   LogOut, 
   Menu, 
-  RefreshCw, 
   PawPrint, 
-  Search, 
-  PlusCircle, 
   Briefcase, 
   X, 
   Calendar, 
-  DollarSign, 
   TrendingUp, 
   TrendingDown, 
   CreditCard,
   UserPlus,
-  ArrowLeft
+  ArrowLeft,
+  BarChart2
 } from "lucide-react";
 import ModalDespesaAdmin from "../components/ModalDespesaAdmin";
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  ResponsiveContainer, 
+  CartesianGrid 
+} from "recharts";
 
 export default function Dashboard({ user }) {
   const containerRef = useRef(null);
@@ -45,35 +51,16 @@ export default function Dashboard({ user }) {
   const [modoMenu, setModoMenu] = useState("lista"); // lista | criar
 
   const [despesasAdmin, setDespesasAdmin] = useState([]);
-
-  // 🔎 BUSCA
-  const [busca, setBusca] = useState("");
-  const [resultadosBusca, setResultadosBusca] = useState([]);
-
-  const totalBusca = resultadosBusca.reduce(
-    (acc, item) => acc + Number(item.valor || 0),
-    0
-  );
+  const [historicoMensal, setHistoricoMensal] = useState([]);
 
   useEffect(() => {
     carregarFuncionarios();
+    carregarHistoricoMensal();
   }, []);
 
   useEffect(() => {
     carregarTotais();
   }, [dataInicio, dataFim]);
-
-  function atualizarPagina() {
-    window.location.reload();
-  }
-
-  useEffect(() => {
-    if (busca) {
-      buscarServicos();
-    } else {
-      setResultadosBusca([]);
-    }
-  }, [busca, dataInicio, dataFim]);
 
   async function carregarFuncionarios() {
     const { data } = await supabase
@@ -85,7 +72,6 @@ export default function Dashboard({ user }) {
   }
 
   async function carregarTotais() {
-
     const { data: funcs } = await supabase
       .from("funcionarios")
       .select("id")
@@ -112,54 +98,85 @@ export default function Dashboard({ user }) {
     );
 
     const despesasFiltradas = (despesas || []).filter(
-        (d) =>
-          d.categoria === "Despesa" ||
-          (!d.categoria && d.tipo !== "Crédito")
-      );
+      (d) =>
+        d.categoria === "Despesa" ||
+        (!d.categoria && d.tipo !== "Crédito")
+    );
 
+    const creditosFiltrados = (despesas || []).filter(
+      (d) =>
+        d.categoria === "Crédito" ||
+        d.tipo === "Crédito"
+    );
 
-      const creditosFiltrados = (despesas || []).filter(
-        (d) =>
-          d.categoria === "Crédito" ||
-          d.tipo === "Crédito"
-      );
+    setTotalDespesas(
+      despesasFiltradas.reduce((a, b) => a + Number(b.valor || 0), 0)
+    );
 
-      setTotalDespesas(
-        despesasFiltradas.reduce((a, b) => a + Number(b.valor || 0), 0)
-      );
-
-      setTotalCreditos(
-        creditosFiltrados.reduce((a, b) => a + Number(b.valor || 0), 0)
-      );
+    setTotalCreditos(
+      creditosFiltrados.reduce((a, b) => a + Number(b.valor || 0), 0)
+    );
   }
 
-  // 🔎 BUSCAR SERVIÇOS POR CLIENTE/PET
-  async function buscarServicos() {
+  async function carregarHistoricoMensal() {
     const { data: funcs } = await supabase
       .from("funcionarios")
-      .select("id, nome")
+      .select("id")
       .eq("user_id", user.id);
 
     const idsFuncionarios = (funcs || []).map((f) => f.id);
 
-    const { data: servicos } = await supabase
-      .from("servicos")
-      .select("*")
-      .in("funcionario_id", idsFuncionarios)
-      .ilike("cliente", `%${busca}%`)
-      .gte("data", dataInicio)
-      .lte("data", dataFim)
-      .order("data", { ascending: false });
+    const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+    const resultado = [];
 
-    const resultadoComFuncionario = (servicos || []).map((s) => {
-      const func = funcs.find((f) => f.id === s.funcionario_id);
-      return {
-        ...s,
-        funcionario_nome: func?.nome || "Desconhecido",
-      };
-    });
+    const agora = new Date();
 
-    setResultadosBusca(resultadoComFuncionario);
+    // Busca os últimos 6 meses
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(agora.getFullYear(), agora.getMonth() - i, 1);
+      const ano = d.getFullYear();
+      const mes = d.getMonth();
+
+      const ini = new Date(ano, mes, 1).toISOString().split("T")[0];
+      const fim = new Date(ano, mes + 1, 0).toISOString().split("T")[0];
+
+      const { data: servs } = await supabase
+        .from("servicos")
+        .select("valor")
+        .in("funcionario_id", idsFuncionarios)
+        .gte("data", ini)
+        .lte("data", fim);
+
+      const { data: despsFunc } = await supabase
+        .from("despesas_funcionario")
+        .select("valor, tipo, categoria")
+        .in("funcionario_id", idsFuncionarios)
+        .gte("data", ini)
+        .lte("data", fim);
+
+      const { data: despsAdmin } = await supabase
+        .from("despesas_administrativas")
+        .select("valor")
+        .eq("user_id", user.id)
+        .gte("data", ini)
+        .lte("data", fim);
+
+      const fat = (servs || []).reduce((acc, curr) => acc + Number(curr.valor || 0), 0);
+      
+      const despF = (despsFunc || [])
+        .filter((d) => d.categoria === "Despesa" || (!d.categoria && d.tipo !== "Crédito"))
+        .reduce((acc, curr) => acc + Number(curr.valor || 0), 0);
+
+      const despA = (despsAdmin || []).reduce((acc, curr) => acc + Number(curr.valor || 0), 0);
+
+      resultado.push({
+        mes: `${mesesNomes[mes]}`,
+        Faturamento: fat,
+        Despesas: despF + despA,
+      });
+    }
+
+    setHistoricoMensal(resultado);
   }
 
   async function criarFuncionario() {
@@ -188,6 +205,7 @@ export default function Dashboard({ user }) {
     ]);
 
     setModalDespesaAdmin(false);
+    carregarHistoricoMensal();
   }
 
   async function buscarDespesasAdmin() {
@@ -201,7 +219,7 @@ export default function Dashboard({ user }) {
     if (error) {
       console.error("Erro ao buscar despesas admin:", error);
     } else {
-      setDespesasAdmin(data);
+      setDespesasAdmin(data || []);
     }
   }
 
@@ -238,13 +256,11 @@ export default function Dashboard({ user }) {
         {/* OVERLAY & DRAWER DO MENU */}
         {menuAberto && (
           <div className="fixed inset-0 z-50 flex">
-            {/* Background Blur Overlay */}
             <div 
               className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
               onClick={() => setMenuAberto(false)}
             />
 
-            {/* Content Drawer */}
             <div className="relative w-72 max-w-[80vw] h-full bg-slate-900 border-r border-slate-800 p-5 shadow-2xl flex flex-col justify-between z-10">
               {modoMenu === "lista" && (
                 <div>
@@ -460,61 +476,40 @@ export default function Dashboard({ user }) {
             </div>
           </div>
 
-          {/* 🔎 CAMPO DE BUSCA */}
-          <div className="relative pt-2">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input
-              placeholder="Buscar cliente ou pet..."
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className="bg-slate-900/90 border border-slate-800 focus:border-slate-700 pl-10 pr-4 py-3 rounded-2xl w-full text-sm text-slate-100 placeholder-slate-500 outline-none transition shadow-sm"
-            />
-          </div>
-
-          {/* RESULTADO DA BUSCA */}
-          {busca && (
-            <div className="space-y-2 pt-1 animate-fadeIn">
-              {/* TOTAL DA BUSCA */}
-              <div className="bg-slate-900 p-3 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
-                <span className="text-slate-400 font-medium">Total localizado na busca</span>
-                <span className="text-emerald-400 font-bold text-sm font-mono">
-                  R$ {totalBusca.toFixed(2).replace(".", ",")}
+          {/* GRÁFICO HISTÓRICO MÊS A MÊS */}
+          <div className="bg-slate-900/80 p-4 rounded-2xl border border-slate-800/80">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BarChart2 size={16} className="text-emerald-400" />
+                <h3 className="text-sm font-semibold text-slate-200">Histórico (Últimos 6 Meses)</h3>
+              </div>
+              <div className="flex items-center gap-3 text-[10px]">
+                <span className="flex items-center gap-1 text-slate-400">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span> Fat.
+                </span>
+                <span className="flex items-center gap-1 text-slate-400">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 inline-block"></span> Desp.
                 </span>
               </div>
-
-              {/* LISTA DE RESULTADOS */}
-              <div className="max-h-[280px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
-                {resultadosBusca.map((s) => (
-                  <div
-                    key={s.id}
-                    className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800/80 text-xs space-y-1 hover:border-slate-700 transition"
-                  >
-                    <div className="flex justify-between items-start">
-                      <span className="font-semibold text-slate-100 text-sm">{s.cliente}</span>
-                      <span className="text-emerald-400 font-bold font-mono text-sm">
-                        R$ {Number(s.valor).toFixed(2).replace(".", ",")}
-                      </span>
-                    </div>
-
-                    <div className="text-slate-400 text-xs">{s.tipo}</div>
-
-                    <div className="flex justify-between items-center pt-1 border-t border-slate-800/50 mt-2 text-[11px]">
-                      <span className="text-slate-500">
-                        {new Date(s.data + "T00:00:00").toLocaleDateString()}
-                      </span>
-                      <span className="text-sky-400 font-medium bg-sky-950/40 px-2 py-0.5 rounded border border-sky-800/30">
-                        {s.funcionario_nome}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-
-                {resultadosBusca.length === 0 && (
-                  <p className="text-center py-6 text-slate-500 text-xs">Nenhum serviço encontrado.</p>
-                )}
-              </div>
             </div>
-          )}
+
+            <div className="h-48 w-full text-xs">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={historicoMensal} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                  <XAxis dataKey="mes" stroke="#64748b" tickLine={false} axisLine={false} fontSize={11} />
+                  <YAxis stroke="#64748b" tickLine={false} axisLine={false} fontSize={10} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: "#0f172a", borderColor: "#334155", borderRadius: "12px", color: "#f8fafc" }}
+                    formatter={(value) => [`R$ ${Number(value).toFixed(2).replace(".", ",")}`]}
+                  />
+                  <Bar dataKey="Faturamento" fill="#10b981" radius={[4, 4, 0, 0]} barSize={12} />
+                  <Bar dataKey="Despesas" fill="#f43f5e" radius={[4, 4, 0, 0]} barSize={12} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
         </div>
       </div>
 

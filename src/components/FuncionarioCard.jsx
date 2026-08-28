@@ -105,6 +105,8 @@ export default function FuncionarioCard({ funcionario }) {
     .filter((d) => d.categoria === "Crédito" || d.tipo === "Crédito")
     .reduce((a, b) => a + Number(b.valor || 0), 0);
 
+  const totalAReceber = (totalServicos / 2) - (totalDespesas / 2) - totalCreditos;
+
   const quantidadeServicos = servicosFiltrados.length;
 
   async function salvarServico(dados) {
@@ -190,6 +192,8 @@ export default function FuncionarioCard({ funcionario }) {
       .filter((d) => d.categoria === "Crédito" || d.tipo === "Crédito")
       .reduce((a, b) => a + Number(b.valor || 0), 0);
 
+    const totalARec = (totalS / 2) - (totalD / 2) - totalC;
+
     let textoRelatorio = `*Dr Tosa* 🐾\n`;
     textoRelatorio += `*Relatório de Produção*\n\n`;
     textoRelatorio += `👤 *Parceiro:* ${funcionario.nome}\n`;
@@ -199,6 +203,7 @@ export default function FuncionarioCard({ funcionario }) {
     textoRelatorio += `  • *Faturamento: R$ ${formatarMoeda(totalS)}*\n`;
     textoRelatorio += `  • Despesas: R$ ${formatarMoeda(totalD)}\n`;
     textoRelatorio += `  • Créditos: R$ ${formatarMoeda(totalC)}\n`;
+    textoRelatorio += `  • *A receber: R$ ${formatarMoeda(totalARec)}*\n`;
     textoRelatorio += `────────────────────\n\n`;
 
     textoRelatorio += `📋 *Serviços Realizados:*\n`;
@@ -311,26 +316,37 @@ export default function FuncionarioCard({ funcionario }) {
       </div>
 
       {/* Resumo Financeiro */}
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        <div className="bg-gray-800 p-3 rounded">
-          <p className="text-gray-400 text-sm">Faturamento</p>
-          <p className="text-green-400 font-bold">
-            R$ {formatarMoeda(totalServicos)}
-          </p>
+      <div className="mb-3">
+        {/* Grid com os 3 cards restantes */}
+        <div className="grid grid-cols-3 gap-2 mb-2">
+          <div className="bg-gray-800 p-3 rounded">
+            <p className="text-gray-400 text-sm">Faturamento</p>
+            <p className="text-green-400 font-bold">
+              R$ {formatarMoeda(totalServicos)}
+            </p>
+          </div>
+
+          <div className="bg-gray-800 p-3 rounded">
+            <p className="text-gray-400 text-sm">Despesas</p>
+            <p className="text-red-400 font-bold">
+              R$ {formatarMoeda(totalDespesas)}
+            </p>
+          </div>
+
+          <div className="bg-gray-800 p-3 rounded">
+            <p className="text-gray-400 text-sm">Créditos</p>
+            <p className="text-orange-500 font-bold">
+              R$ {formatarMoeda(totalCreditos)}
+            </p>
+          </div>
         </div>
 
-        <div className="bg-gray-800 p-3 rounded">
-          <p className="text-gray-400 text-sm">Despesas</p>
-          <p className="text-red-400 font-bold">
-            R$ {formatarMoeda(totalDespesas)}
-          </p>
-        </div>
-
-        <div className="bg-gray-800 p-3 rounded">
-          <p className="text-gray-400 text-sm">Créditos</p>
-          <p className="text-orange-500 font-bold">
-            R$ {formatarMoeda(totalCreditos)}
-          </p>
+        {/* Exibição textual direta de "A receber" sem card */}
+        <div className="flex justify-between items-center px-1 py-1">
+          <span className="text-gray-300 font-medium text-sm">A receber:</span>
+          <span className="text-emerald-400 font-bold text-lg">
+            R$ {formatarMoeda(totalAReceber)}
+          </span>
         </div>
       </div>
 

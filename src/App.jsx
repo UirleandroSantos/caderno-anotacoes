@@ -8,7 +8,7 @@ export default function App() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const userStorage = localStorage.getItem("usuario");
+    const userStorage = localStorage.getItem("usuario_v2");
     if (userStorage) {
       setUser(JSON.parse(userStorage));
     }

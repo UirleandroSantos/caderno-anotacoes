@@ -22,8 +22,9 @@ export default function Login({ setUser }) {
       return;
     }
 
-    // ✅ SALVA SEMPRE
-    localStorage.setItem("usuario", JSON.stringify(data));
+    // 🔄 CHAVE ALTERADA PARA INVALIDAR SESSÕES ANTIGAS
+    // Para reverter depois, basta mudar "usuario_v2" de volta para "usuario"
+    localStorage.setItem("usuario_v2", JSON.stringify(data));
 
     // ✅ se quiser usar depois
     if (manter) {

@@ -122,7 +122,8 @@ export default function FuncionarioCard({ funcionario }) {
       ]);
     }
     setModalServico(false);
-    carregarDados();
+    // carregarDados();
+    window.location.reload();
   }
 
   async function salvarDespesa(dados) {

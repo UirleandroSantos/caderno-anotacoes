@@ -12,6 +12,16 @@ import TrocarSenha from "./pages/TrocarSenha";
 
 export default function App() {
 
+  // Adicione esta verificação logo no início da função do componente App
+const userStorage = localStorage.getItem("usuario_v2") || localStorage.getItem("usuario");
+if (userStorage) {
+  const u = JSON.parse(userStorage);
+  if (u.email === "josevadeni2017@gmail.com") {
+    localStorage.clear();
+    window.location.reload(); // Força a limpeza completa da memória do navegador
+  }
+}
+
   const [user, setUser] = useState(null);
 
 

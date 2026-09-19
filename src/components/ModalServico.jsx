@@ -66,20 +66,23 @@ export default function ModalServico({ onClose, onSave }) {
         />
 
         <div className="flex gap-2">
-          <button
-            onClick={salvar}
-            className="bg-green-600 hover:bg-green-700 flex-1 p-2 rounded font-medium"
-          >
-            Salvar
-          </button>
+  <button
+    onClick={(e) => {
+      salvar(e);
+      window.location.reload();
+    }}
+    className="bg-green-600 hover:bg-green-700 flex-1 p-2 rounded font-medium"
+  >
+    Salvar
+  </button>
 
-          <button
-            onClick={onClose}
-            className="bg-gray-700 hover:bg-gray-600 flex-1 p-2 rounded"
-          >
-            Cancelar
-          </button>
-        </div>
+  <button
+    onClick={onClose}
+    className="bg-gray-700 hover:bg-gray-600 flex-1 p-2 rounded"
+  >
+    Cancelar
+  </button>
+</div>
 
       </div>
     </div>

@@ -5,14 +5,18 @@ import DashboardAdmin from "./pages/DashboardAdmin";
 import TrocarSenha from "./pages/TrocarSenha";
 
 export default function App() {
-  // ✅ Lê o localStorage SINCROAMENTE logo na inicialização do estado
+  // ✅ Lê primeiro do localStorage e, se não encontrar, do sessionStorage
   const [user, setUser] = useState(() => {
-    const userStorage = localStorage.getItem("usuario");
+    const userLocal = localStorage.getItem("usuario");
+    const userSession = sessionStorage.getItem("usuario");
+    const userStorage = userLocal || userSession;
+
     if (userStorage) {
       try {
         return JSON.parse(userStorage);
       } catch (e) {
         localStorage.removeItem("usuario");
+        sessionStorage.removeItem("usuario");
         return null;
       }
     }

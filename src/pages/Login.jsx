@@ -9,7 +9,6 @@ export default function Login({ setUser }) {
   const [manter, setManter] = useState(true);
 
   async function handleLogin() {
-
     const { data, error } = await supabase
       .from("usuarios")
       .select("*")
@@ -22,13 +21,17 @@ export default function Login({ setUser }) {
       return;
     }
 
-    // ✅ SALVA SEMPRE
-    localStorage.setItem("usuario", JSON.stringify(data));
+    // Limpa gravações anteriores para evitar conflitos
+    localStorage.removeItem("usuario");
+    sessionStorage.removeItem("usuario");
 
-    // ✅ se quiser usar depois
+    // ✅ Salva no localStorage se "Manter conectado" estiver ativo (persiste ao fechar o navegador)
+    // ✅ Salva no sessionStorage se não estiver ativo (mantém logado na atualização da página, mas desloga ao fechar a aba)
     if (manter) {
+      localStorage.setItem("usuario", JSON.stringify(data));
       localStorage.setItem("manter_conectado", "true");
     } else {
+      sessionStorage.setItem("usuario", JSON.stringify(data));
       localStorage.removeItem("manter_conectado");
     }
 
@@ -42,12 +45,10 @@ export default function Login({ setUser }) {
 
   return (
     <div className="relative h-screen overflow-hidden flex flex-col">
-
       <div className="min-h-screen flex flex-col bg-gray-950 text-white overflow-hidden">
 
         {/* CENTRO */}
         <div className="absolute inset-0 pb-40 flex items-center justify-center">
-
           <div className="bg-gray-900 border border-gray-800 p-6 rounded-2xl w-80 shadow-xl">
 
             <h2 className="text-2xl font-bold mb-1 text-center">
@@ -66,7 +67,6 @@ export default function Login({ setUser }) {
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
                   size={16}
                 />
-
                 <input
                   placeholder="Login"
                   value={email}
@@ -81,7 +81,6 @@ export default function Login({ setUser }) {
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
                   size={16}
                 />
-
                 <input
                   type="password"
                   placeholder="Senha"
@@ -93,18 +92,16 @@ export default function Login({ setUser }) {
 
               {/* CHECKBOX */}
               <div className="flex items-center gap-2">
-
                 <input
                   type="checkbox"
+                  id="manter"
                   checked={manter}
                   onChange={() => setManter(!manter)}
-                  className="accent-blue-500"
+                  className="accent-blue-500 cursor-pointer"
                 />
-
-                <label className="text-sm text-gray-400">
+                <label htmlFor="manter" className="text-sm text-gray-400 cursor-pointer">
                   Manter conectado
                 </label>
-
               </div>
 
             </div>
@@ -118,7 +115,6 @@ export default function Login({ setUser }) {
             </button>
 
           </div>
-
         </div>
 
       </div>
@@ -127,7 +123,6 @@ export default function Login({ setUser }) {
       <div className="absolute bottom-0 w-full flex items-center justify-center">
         <Footer />
       </div>
-
     </div>
   );
 }
